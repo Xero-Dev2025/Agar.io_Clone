@@ -16,7 +16,10 @@ const ctx = canvas.getContext('2d');
 const allPlayers = {};
 const foodItems = [];
 const player = createPlayer(canvas.width, canvas.height);
-const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+const mouse = {
+  x: window.innerWidth / 2,  // Utiliser la même référence que dans updatePlayerPosition
+  y: window.innerHeight / 2
+};
 
 canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
