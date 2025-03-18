@@ -156,4 +156,94 @@ describe('Game Server', () => {
         const collisions = gameServer.detectFoodCollisions('player1');
         assert.equal(collisions.length, 0, 'No collision should be detected with food being consumed');
     });
+
+    it('should detect collision between two players', () => {
+        players['player1'] = { 
+            id: 'player1',
+            x: 100, 
+            y: 100, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        players['player2'] = { 
+            id: 'player2',
+            x: 105, 
+            y: 105, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        const collisions = gameServer.detectPlayerCollisions('player1');
+        assert.equal(collisions.length, 1, 'A collision should be detected');
+    });
+
+    it('should not detect collision between a player and itself', () => {
+        players['player1'] = { 
+            id: 'player1',
+            x: 100, 
+            y: 100, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        const collisions = gameServer.detectPlayerCollisions('player1');
+        assert.equal(collisions.length, 0, 'No collision should be detected');
+    });
+
+    it('should start animation and mark player as being consumed after collision', () => {
+        const playerId = 'player1';
+        players[playerId] = { 
+            id: playerId,
+            x: 100, 
+            y: 100, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        players['player2'] = { 
+            id: 'player2',
+            x: 105, 
+            y: 105, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        gameServer.handlePlayerCollision(playerId, 'player2');
+        
+        const animations = gameServer.getAnimations();
+        assert.equal(animations.length, 1);
+        assert.equal(animations[0].playerId, playerId);
+        assert.equal(animations[0].foodId, 'player2');
+    });
+
+    it('should decrease player size and remove other player after animation completes', () => {
+        const playerId = 'player1';
+        players[playerId] = { 
+            id: playerId,
+            x: 100, 
+            y: 100, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        players['player2'] = { 
+            id: 'player2',
+            x: 105, 
+            y: 105, 
+            radius: 30,
+            color: '#FF5252'
+        };
+        
+        gameServer.handlePlayerCollision(playerId, 'player2');
+        
+        global.advanceTime(GAME_CONFIG.ANIMATION.CONSUME_DURATION + 10);
+        
+        gameServer.updateAnimations();
+        
+        assert.ok(players[playerId].radius < 30, 'Player radius should decrease');
+        
+        const playerStillExists = Object.keys(players).includes('player2');
+        assert.equal(playerStillExists, false, 'The other player should be removed');
+    });
 });
