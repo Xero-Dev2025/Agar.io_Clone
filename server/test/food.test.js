@@ -5,7 +5,6 @@ import { createFood, generateFoodItems } from '../models/food.js';
 describe('Food Management', () => {
     it('should create a food ball with required properties', () => {
         const food = createFood(1, 100, 200);
-        
         assert.equal(typeof food.id, 'number', 'Food must have an ID');
         assert.equal(food.x, 100, 'Food must have the requested X position');
         assert.equal(food.y, 200, 'Food must have the requested Y position');
@@ -27,9 +26,7 @@ describe('Food Management', () => {
             assert.ok(food.x >= 0 && food.x <= maxWidth, 'X position must be within limits');
             assert.ok(food.y >= 0 && food.y <= maxHeight, 'Y position must be within limits');
             assert.ok(food.id !== undefined, 'Each ball must have a unique ID');
-        });
-        
-        // Check that all IDs are unique
+        });        
         const ids = foodItems.map(food => food.id);
         const uniqueIds = new Set(ids);
         assert.equal(uniqueIds.size, count, 'All IDs must be unique');

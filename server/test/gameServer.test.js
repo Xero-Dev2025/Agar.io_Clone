@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
-import createGameServer  from '../gameServer.js';
+import {createGameServer}  from '../gameServer.js';
 
 describe('Game Server', () => {
     let gameServer;
@@ -16,14 +16,14 @@ describe('Game Server', () => {
     it('should add a new player on connection', () => {
         const mockSocket = { id: 'player1', on: () => {} };
         gameServer.handleConnection(mockSocket);
-        assert.deepStrictEqual(players[mockSocket.id], { x: 0, y: 0 });
+        assert.deepStrictEqual(players[mockSocket.id], { x: 0, y: 0, radius: 30 });
     });
     
     it('should update player position', () => {
         const mockSocket = { id: 'player1', on: () => {} };
         gameServer.handleConnection(mockSocket);
         gameServer.handlePlayerMove(mockSocket.id, { x: 100, y: 200 });
-        assert.deepStrictEqual(players[mockSocket.id], { x: 100, y: 200 });
+        assert.deepStrictEqual(players[mockSocket.id], { x: 100, y: 200, radius: 30 });
     });
     
     it('should remove player on disconnect', () => {
