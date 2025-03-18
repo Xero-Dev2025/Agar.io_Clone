@@ -11,16 +11,23 @@ export function createPlayer(canvasWidth, canvasHeight) {
 }
 
 export function updatePlayerPosition(player, mouse) {
-  const dx = mouse.x - player.x;
-  const dy = mouse.y - player.y;
+  // Calculer le vecteur de direction depuis le centre du canvas
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
   
+  // Calculer la direction en fonction de la position de la souris par rapport au centre
+  const dx = mouse.x - centerX;
+  const dy = mouse.y - centerY;
+  
+  // Vecteur de direction
   const distance = Math.sqrt(dx * dx + dy * dy);
   
-  if (distance > player.speed) {
-    player.x += (dx / distance) * player.speed;
-    player.y += (dy / distance) * player.speed;
-  } else {
-    player.x = mouse.x;
-    player.y = mouse.y;
+  if (distance > 0) {
+    const directionX = dx / distance;
+    const directionY = dy / distance;
+    
+    // Appliquer le mouvement en fonction de la direction et de la vitesse
+    player.x += directionX * player.speed;
+    player.y += directionY * player.speed;
   }
 }
