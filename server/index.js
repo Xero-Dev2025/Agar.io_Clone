@@ -5,6 +5,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createGameServer } from './gameServer.js';
+import { GAME_CONFIG } from './utils/config.js';
 
 dotenv.config();
 
@@ -19,47 +20,75 @@ const httpServer = http.createServer(app);
 const io = new IOServer(httpServer, { cors: true });
 
 const port = process.env.PORT || 8081;
-const GAME_WIDTH = 2000;
-const GAME_HEIGHT = 2000;
 
 app.use(express.static(path.join(__dirname, '../client/public')));
+app.use('/shared', express.static(path.join(__dirname, '../shared')));
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/public/jeu.html'));
 });
 
 const gameServer = createGameServer(players, foodItems);
-
-gameServer.initializeFood(GAME_WIDTH, GAME_HEIGHT);
+gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 console.log(`Boules alimentaires initialisées: ${foodItems.length}`);
-
-const MAX_FOOD = 100;        
-const SPAWN_INTERVAL = 2000; 
-const SPAWN_COUNT = 5;       
 
 function startFoodSpawning() {
     setInterval(() => {
-        if (foodItems.length < MAX_FOOD) {
-            const countToSpawn = Math.min(SPAWN_COUNT, MAX_FOOD - foodItems.length);
+        if (foodItems.length < GAME_CONFIG.FOOD.MAX_COUNT) {
+            const countToSpawn = Math.min(
+                GAME_CONFIG.FOOD.SPAWN_COUNT, 
+                GAME_CONFIG.FOOD.MAX_COUNT - foodItems.length
+            );
+            
             if (countToSpawn > 0) {
-                const newFood = gameServer.spawnFood(countToSpawn, GAME_WIDTH, GAME_HEIGHT);
+                const newFood = gameServer.spawnFood(
+                    countToSpawn, 
+                    GAME_CONFIG.WIDTH, 
+                    GAME_CONFIG.HEIGHT
+                );
                 console.log(`${newFood} nouvelles boules alimentaires générées (total: ${foodItems.length})`);
                 
                 if (Object.keys(players).length > 0) {
-                    io.emit('gameState', { players: players, foodItems: foodItems });
+                    io.emit('gameState', { 
+                        players: players, 
+                        foodItems: foodItems,
+                        animations: gameServer.getAnimations()
+                    });
                 }
             }
         }
-    }, SPAWN_INTERVAL);
+    }, GAME_CONFIG.FOOD.SPAWN_INTERVAL);
+}
+
+const ANIMATION_UPDATE_INTERVAL = 33; 
+
+function startAnimationUpdates() {
+    setInterval(() => {
+        const gameState = gameServer.updateAnimations();
+        
+        if (Object.keys(players).length > 0 && gameState.animations.length > 0) {
+            io.emit('gameState', { 
+                players: gameState.players, 
+                foodItems: gameState.foodItems, 
+                animations: gameState.animations 
+            });
+        }
+    }, ANIMATION_UPDATE_INTERVAL);
 }
 
 startFoodSpawning();
+startAnimationUpdates();
 
 io.on('connection', (socket) => {
     console.log('Nouveau joueur connecté:', socket.id);
     
     gameServer.handleConnection(socket);
     
-    socket.emit('gameState', { players: players, foodItems: foodItems });
+    socket.emit('gameState', { 
+        players: players, 
+        foodItems: foodItems,
+        animations: gameServer.getAnimations()
+    });
     
     socket.on('playerMove', (position) => {
         gameServer.handlePlayerMove(socket.id, position);
@@ -68,18 +97,32 @@ io.on('connection', (socket) => {
         
         if (collisions.length > 0) {
             console.log(`Joueur ${socket.id} a mangé ${collisions.length} boules`);
+            
+            console.log(`Rayon du joueur avant collision: ${players[socket.id].radius}`);
+            
             collisions.forEach(food => {
                 gameServer.handleFoodCollision(socket.id, food);
             });
+            
+            console.log(`Rayon du joueur après collision: ${players[socket.id].radius}`);
         }
         
-        io.emit('gameState', { players: players, foodItems: foodItems });
+        io.emit('gameState', { 
+            players: players, 
+            foodItems: foodItems,
+            animations: gameServer.getAnimations()
+        });
     });
     
     socket.on('disconnect', () => {
         console.log('Joueur déconnecté:', socket.id);
         gameServer.handleDisconnect(socket.id);
-        io.emit('gameState', { players: players, foodItems: foodItems });
+        
+        io.emit('gameState', { 
+            players: players, 
+            foodItems: foodItems,
+            animations: gameServer.getAnimations()
+        });
     });
 });
 
