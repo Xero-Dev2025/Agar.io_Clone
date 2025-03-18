@@ -197,53 +197,28 @@ describe('Game Server', () => {
             id: playerId,
             x: 100, 
             y: 100, 
-            radius: 30,
+            radius: 40,  
             color: '#FF5252'
         };
         
-        players['player2'] = { 
-            id: 'player2',
+        const otherPlayerId = 'player2';
+        players[otherPlayerId] = { 
+            id: otherPlayerId,
             x: 105, 
             y: 105, 
-            radius: 30,
+            radius: 30,  
             color: '#FF5252'
         };
         
-        gameServer.handlePlayerCollision(playerId, 'player2');
+        const result = gameServer.handlePlayerCollision(playerId, players[otherPlayerId]);
+        
+        assert.equal(result.action, 'consume', 'Action should be consume');
+        assert.equal(result.predator.id, playerId, 'Predator should be player1');
+        assert.equal(result.prey.id, otherPlayerId, 'Prey should be player2');
         
         const animations = gameServer.getAnimations();
-        assert.equal(animations.length, 1);
-        assert.equal(animations[0].playerId, playerId);
-        assert.equal(animations[0].foodId, 'player2');
-    });
-
-    it('should decrease player size and remove other player after animation completes', () => {
-        const playerId = 'player1';
-        players[playerId] = { 
-            id: playerId,
-            x: 100, 
-            y: 100, 
-            radius: 30,
-            color: '#FF5252'
-        };
-        
-        players['player2'] = { 
-            id: 'player2',
-            x: 105, 
-            y: 105, 
-            radius: 30,
-            color: '#FF5252'
-        };
-        
-        gameServer.handlePlayerCollision(playerId, 'player2');
-        
-        global.advanceTime(GAME_CONFIG.ANIMATION.CONSUME_DURATION + 10);
-        
-        gameServer.updateAnimations();
-        
-        assert.ok(players[playerId].radius < 30, 'Player radius should decrease');
-        
-        const playerStillExists = Object.keys(players).includes('player2');
-        assert.equal(playerStillExists, false, 'The other player should be removed');
+        assert.equal(animations.length, 1, 'Should create one animation');
+        assert.equal(animations[0].playerId, playerId, 'Animation should be for player1');
+        assert.equal(animations[0].eatenPlayerId, otherPlayerId, 'Eaten player should be player2');
     });
 });

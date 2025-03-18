@@ -10,10 +10,10 @@ export const GAME_CONFIG = {
     
     FOOD: {
       RADIUS: 10,
-      MAX_COUNT: 100,
+      MAX_COUNT: 1000,
       INITIAL_COUNT: 20,
       SPAWN_INTERVAL: 2000, 
-      SPAWN_COUNT: 5
+      SPAWN_COUNT: 20
     },
     ANIMATION: {
       CONSUME_DURATION: 300, 
