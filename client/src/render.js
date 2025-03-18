@@ -7,12 +7,21 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   // Sauvegarde l'état du contexte
   ctx.save();
   
-  // Calcul du offset pour centrer le joueur
-  const cameraX = canvas.width / 2 - player.x;
-  const cameraY = canvas.height / 2 - player.y;
+  // Calcul du facteur de zoom en fonction du rayon du joueur
+  const baseRadius = 30; // Rayon initial du joueur
+  const maxZoom = 1;   // Zoom maximum (pas de recul)
+  const minZoom = 0.22;   // Zoom minimum (recul maximum)
   
-  // Application de la translation pour tout ce qui sera dessiné
+  // Plus le joueur est gros, plus la caméra recule (zoom diminue)
+  let scale = Math.max(minZoom, maxZoom - (player.radius - baseRadius) / 300);
+  
+  // Calcul du offset pour centrer le joueur avec prise en compte du zoom
+  const cameraX = canvas.width / 2 - player.x * scale;
+  const cameraY = canvas.height / 2 - player.y * scale;
+  
+  // Application de la translation et du zoom pour tout ce qui sera dessiné
   ctx.translate(cameraX, cameraY);
+  ctx.scale(scale, scale);
   
   drawFoodItems(ctx, foodItems);
   
