@@ -4,6 +4,16 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
+  // Sauvegarde l'état du contexte
+  ctx.save();
+  
+  // Calcul du offset pour centrer le joueur
+  const cameraX = canvas.width / 2 - player.x;
+  const cameraY = canvas.height / 2 - player.y;
+  
+  // Application de la translation pour tout ce qui sera dessiné
+  ctx.translate(cameraX, cameraY);
+  
   drawFoodItems(ctx, foodItems);
   
   drawConsumingAnimations(ctx, animations, foodItems);
@@ -11,6 +21,9 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   drawMainPlayer(ctx, player);
   
   drawOtherPlayers(ctx, allPlayers, socketId);
+  
+  // Restauration de l'état du contexte
+  ctx.restore();
 }
 
 function drawFoodItems(ctx, foodItems) {
