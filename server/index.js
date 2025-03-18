@@ -29,6 +29,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/public/jeu.html'));
 });
 
+httpServer.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});
+
 const gameServer = createGameServer(players, foodItems);
 gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 console.log(`Boules alimentaires initialisées: ${foodItems.length}`);

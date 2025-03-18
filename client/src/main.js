@@ -13,6 +13,8 @@ function setCanvasDimensions(canvas) {
 
 setCanvasDimensions(canvas);
 
+const ctx = canvas.getContext('2d');
+
 const allPlayers = {};
 const foodItems = [];
 const player = createPlayer(canvas.width, canvas.height);
