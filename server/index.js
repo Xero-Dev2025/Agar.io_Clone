@@ -16,7 +16,7 @@ const app = express();
 
 const httpServer = http.createServer(app);
 
-const io = new IOServer(httpServer,     { cors: true });
+const io = new IOServer(httpServer, { cors: true });
 
 const port = process.env.PORT;
 
@@ -30,26 +30,38 @@ httpServer.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
+function createServer(players = {}) {
+    return {
+      handleConnection(socket) {
+        players[socket.id] = { x: 0, y: 0 };
+      },
+      handlePlayerMove(socketId, position) {
+        if (players[socketId]) {
+          players[socketId].x = position.x;
+          players[socketId].y = position.y;
+        }
+      },
+      handleDisconnect(socketId) {
+        delete players[socketId];
+      }
+    };
+}
+
+const gameServer = createServer(players);
+
 io.on('connection', (socket) => {
     console.log('Nouveau joueur connecté:', socket.id);
-    
-    players[socket.id] = {
-        x: 0,
-        y: 0
-    };
-    
+    gameServer.handleConnection(socket);
     socket.on('playerMove', (position) => {
-        players[socket.id].x = position.x;
-        players[socket.id].y = position.y;
-        
+        gameServer.handlePlayerMove(socket.id, position);
         io.emit('gameState', players);
     });
     
     socket.on('disconnect', () => {
         console.log('Joueur déconnecté:', socket.id);
-        delete players[socket.id];
+        gameServer.handleDisconnect(socket.id);
         io.emit('gameState', players);
     });
 });
 
-export default io;
+export { createServer };
