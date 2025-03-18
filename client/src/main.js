@@ -1,91 +1,73 @@
-import {io} from 'socket.io-client';
-const canvas = document.querySelector('.gameCanvas');
+import { io } from 'socket.io-client';
 
+const canvas = document.querySelector('.gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Définir les dimensions du canvas
 function setCanvasDimensions(canvas) {
-    canvas.width = window.innerWidth - 20;  
-    canvas.height = window.innerHeight - 100;  
+    canvas.width = window.innerWidth - 20;
+    canvas.height = window.innerHeight - 100;
 }
 
 setCanvasDimensions(canvas);
 
-const ctx = canvas.getContext('2d');
-
-const allPlayers = {};
-
-const player = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    radius: 30,
-    color: 'red',
-    speed: 5
-};
+const allPlayers = {}; // Stocke tous les joueurs reçus du serveur
 
 const mouse = {
     x: canvas.width / 2,
     y: canvas.height / 2
 };
 
+// Dessiner tous les joueurs
 function drawAllPlayers() {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-    ctx.fillStyle = player.color;
-    ctx.fill();
-    ctx.closePath();
-    
+
     Object.keys(allPlayers).forEach(id => {
-        if (id !== socket.id) { 
-            ctx.beginPath();
-            ctx.arc(allPlayers[id].x, allPlayers[id].y, player.radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'blue';
-            ctx.fill();
-            ctx.closePath();
-        }
+        const player = allPlayers[id];
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+        ctx.fillStyle = player.color;
+        ctx.fill();
+        ctx.closePath();
     });
 }
 
-function updatePlayerPosition() {
-    const dx = mouse.x - player.x;
-    const dy = mouse.y - player.y;
-    
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    if (distance > player.speed) {
-        player.x += (dx / distance) * player.speed;
-        player.y += (dy / distance) * player.speed;
-    } else {
-        player.x = mouse.x;
-        player.y = mouse.y;
-    }
-}
-
+// Écouter les mouvements de la souris
 canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
+
 });
 
+// Envoyer les mouvements de la souris au serveur toutes les 60 FPS
+setInterval(() => {
+    socket.emit('playerMove', mouse);
+}
+, 1000 / 60);
+
+// Boucle de jeu
 function gameLoop() {
-    updatePlayerPosition();
-    drawAllPlayers(); 
+    drawAllPlayers();
     requestAnimationFrame(gameLoop);
 }
 
+// Connexion au serveur
 const socket = io(window.location.hostname + ':8080');
 
-setInterval(() => {
-    socket.emit('playerMove', { x: player.x, y: player.y });
-}, 50);
-
-socket.on('gameState', (players) => {
-    Object.keys(allPlayers).forEach(id => delete allPlayers[id]);
-    Object.keys(players).forEach(id => {
-        allPlayers[id] = players[id];
-    });
+// Recevoir l'état initial du jeu
+socket.on('initGameState', (players) => {
+    Object.assign(allPlayers, players);
 });
 
+// Recevoir les mises à jour du jeu
+socket.on('gameState', (players) => {
+    Object.keys(allPlayers).forEach(id => delete allPlayers[id]);
+    Object.assign(allPlayers, players);
+});
+
+// Démarrer la boucle de jeu
 gameLoop();
 
 console.log('Jeu initialisé');
