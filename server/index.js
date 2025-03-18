@@ -96,15 +96,11 @@ io.on('connection', (socket) => {
         const collisions = gameServer.detectFoodCollisions(socket.id);
         
         if (collisions.length > 0) {
-            console.log(`Joueur ${socket.id} a mangé ${collisions.length} boules`);
-            
-            console.log(`Rayon du joueur avant collision: ${players[socket.id].radius}`);
             
             collisions.forEach(food => {
                 gameServer.handleFoodCollision(socket.id, food);
             });
             
-            console.log(`Rayon du joueur après collision: ${players[socket.id].radius}`);
         }
         
         io.emit('gameState', { 
