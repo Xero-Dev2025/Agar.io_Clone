@@ -1,3 +1,5 @@
+import { GAME_CONFIG } from '../../server/utils/config.js';
+
 export function drawGame(ctx, player, foodItems, allPlayers, socketId, animations = []) {
   const canvas = ctx.canvas;
   
@@ -33,6 +35,9 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   
   // Restauration de l'état du contexte
   ctx.restore();
+  
+  // Dessiner la minimap
+  drawMinimap(ctx, player);
 }
 
 function drawFoodItems(ctx, foodItems) {
@@ -95,4 +100,35 @@ function drawConsumingAnimations(ctx, animations, foodItems) {
       ctx.closePath();
     }
   });
+}
+
+function drawMinimap(ctx, player) {
+  const canvas = ctx.canvas;
+  const minimapSize = Math.min(200, canvas.width * 0.2); // Taille minimap
+  const margin = 10;
+  const minimapX = canvas.width - minimapSize - margin;
+  const minimapY = canvas.height - minimapSize - margin;
+  
+  // Fond minimap
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(minimapX, minimapY, minimapSize, minimapSize);
+  
+  // Bordure minimap
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(minimapX, minimapY, minimapSize, minimapSize);
+  
+  // Mettre à l'échelle la taille du monde pour la minimap
+  const scaleX = minimapSize / GAME_CONFIG.WIDTH;
+  const scaleY = minimapSize / GAME_CONFIG.HEIGHT;  
+  
+  // Dessiner joueur local
+  ctx.fillStyle = player.color;
+  const playerSize = Math.max(4, player.radius * scaleX * 0.2);
+  ctx.fillRect(
+    minimapX + player.x * scaleX - playerSize/2,
+    minimapY + player.y * scaleY - playerSize/2,
+    playerSize,
+    playerSize
+  );
 }
