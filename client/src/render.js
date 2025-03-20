@@ -46,7 +46,7 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
 
   drawHUD(ctx, player);
 
-  drawMouseTracker(ctx, player, mouse);
+  //drawMouseTracker(ctx, player, mouse);
 }
 
 function drawFoodItems(ctx, foodItems) {
