@@ -12,7 +12,10 @@ dotenv.config();
 
 const players = {}; // Stocke tous les joueurs connectés
 const foodItems = [];
-const gameMap = null;
+const gameMap = {
+    width: GAME_CONFIG.WIDTH,
+    height: GAME_CONFIG.HEIGHT
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

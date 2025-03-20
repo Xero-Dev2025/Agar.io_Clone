@@ -1,7 +1,5 @@
-import { createPlayer, updatePlayerPosition } from './player.js';
 import { drawGame } from './render.js';
 import { setupNetworking } from './network.js';
-import { worldToScreenCoordinates } from './coordinatesConverter.js';
 
 const canvas = document.querySelector('.gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -16,7 +14,10 @@ setCanvasDimensions(canvas);
 
 const allPlayers = {};
 const foodItems = [];
-const gameMap = null;
+const gameMap = {
+    width: 0,
+    height: 0
+};
 const player = {};
 const mouse = {
     x: canvas.width / 2,

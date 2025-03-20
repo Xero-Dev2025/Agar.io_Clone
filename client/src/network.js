@@ -41,8 +41,8 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
     }
   }
 
-  if (gameState && gameState.gameMap){
-    gameMap = gameState.gameMap;
+  if (gameState && gameState.gameMap) {
+    Object.assign(gameMap, gameState.gameMap);
   }
   
   foodItems.length = 0;

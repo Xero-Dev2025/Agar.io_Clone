@@ -1,5 +1,4 @@
 import { generateFoodItems } from './models/food.js';
-import { createPlayer, updatePlayerPosition, growPlayer } from './models/player.js';
 import GameMap from './GameMap.js';
 import { GAME_CONFIG } from './utils/config.js';
 import Player from './Player.js';

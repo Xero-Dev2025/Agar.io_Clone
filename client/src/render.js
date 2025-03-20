@@ -26,7 +26,9 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   ctx.translate(cameraX, cameraY);
   ctx.scale(scale, scale);
 
-  drawGrid(ctx, player, canvas);
+  drawMapBorders(ctx, player, gameMap);
+
+  drawGrid(ctx, player, gameMap);
 
   drawFoodItems(ctx, foodItems);
   
@@ -41,8 +43,6 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   
   // Dessiner la minimap
   drawMinimap(ctx, player);
-
-  drawMapBorders(ctx, player, gameMap);
 
   drawHUD(ctx, player);
 
@@ -155,19 +155,15 @@ function drawHUD(ctx, player) {
 }
 
 // Dessiner la grille de fond
-function drawGrid(ctx, player, canvas) {
+function drawGrid(ctx, player, gameMap) {
   const gridSize = 50;
   if (!player) return;
-
-  // Calculer les limites de la zone visible
-  const viewportWidth = canvas.width;
-  const viewportHeight = canvas.height;
   
   // Calculer les coordonnées de début et fin de la grille
   const startX = Math.floor(0 / gridSize) * gridSize;
   const startY = Math.floor(0 / gridSize) * gridSize;
-  const endX = Math.ceil(GAME_CONFIG.WIDTH / gridSize) * gridSize;
-  const endY = Math.ceil(GAME_CONFIG.HEIGHT / gridSize) * gridSize;
+  const endX = Math.ceil(gameMap.width / gridSize) * gridSize;
+  const endY = Math.ceil(gameMap.height / gridSize) * gridSize;
   
   ctx.strokeStyle = "#333333";
   ctx.lineWidth = 1;
@@ -193,9 +189,15 @@ function drawGrid(ctx, player, canvas) {
 function drawMapBorders(ctx, player, gameMap) {
   if (!player) return;
 
+  ctx.save();
+  const gridSize = 50; // Utiliser la même taille que la grille
+  const startX = Math.floor(0 / gridSize) * gridSize;
+  const startY = Math.floor(0 / gridSize) * gridSize;
+
   ctx.strokeStyle = "#FF0000";
   ctx.lineWidth = 5;
-  ctx.strokeRect(0, 0, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
+  ctx.strokeRect(startX, startY, gameMap.width, gameMap.height);
+  ctx.restore();
 }
 
 function drawMouseTracker(ctx, player, mouse){
