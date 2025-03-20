@@ -29,9 +29,16 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
     },
     
     handlePlayerMove(socketId, position) {
-      if (players[socketId]) {
-        //updatePlayerPosition(players[socketId], position.x, position.y);
-        players[socketId].moveTowards(position.x, position.y);
+      const player = players[socketId];
+
+      if (player) {
+        player.moveTowards(position.x, position.y);
+
+        // Vérifier les collisions avec les bords de la carte
+        if (player.x - player.radius < 0) player.x = player.radius;
+        if (player.x + player.radius >= gameMap.width) player.x = gameMap.width - player.radius;
+        if (player.y - player.radius < 0) player.y = player.radius;
+        if (player.y + player.radius > gameMap.height) player.y = gameMap.height - player.radius;
       }
     },
     
