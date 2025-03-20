@@ -1,6 +1,7 @@
 import { GAME_CONFIG } from '../../server/utils/config.js';
+import { worldToScreenCoordinates } from './coordinatesConverter.js';
 
-export function drawGame(ctx, player, foodItems, allPlayers, socketId, animations = []) {
+export function drawGame(ctx, player, foodItems, allPlayers, socketId, animations = [], gameMap, mouse) {
   const canvas = ctx.canvas;
   
   ctx.fillStyle = 'black';
@@ -24,7 +25,9 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   // Application de la translation et du zoom pour tout ce qui sera dessiné
   ctx.translate(cameraX, cameraY);
   ctx.scale(scale, scale);
-  
+
+  drawGrid(ctx, player, canvas);
+
   drawFoodItems(ctx, foodItems);
   
   drawConsumingAnimations(ctx, animations, foodItems);
@@ -38,6 +41,12 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   
   // Dessiner la minimap
   drawMinimap(ctx, player);
+
+  drawMapBorders(ctx, player, gameMap);
+
+  drawHUD(ctx, player);
+
+  drawMouseTracker(ctx, player, mouse);
 }
 
 function drawFoodItems(ctx, foodItems) {
@@ -58,9 +67,11 @@ function drawFoodItems(ctx, foodItems) {
   }
 }
 
-function drawMainPlayer(ctx, player) {
+function drawMainPlayer(ctx, player, mouse) {
+  const screenPos = worldToScreenCoordinates(player.x, player.y);
+
   ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+  ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
   ctx.fillStyle = player.color;
   ctx.fill();
   ctx.closePath();
@@ -131,4 +142,70 @@ function drawMinimap(ctx, player) {
     playerSize,
     playerSize
   );
+}
+
+function drawHUD(ctx, player) {
+  if (!player) return;
+  
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "18px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText(`Position: (${Math.round(player.x)}, ${Math.round(player.y)})`, 10, 20);
+  ctx.fillText(`Taille: ${Math.round(player.size)}`, 10, 40);
+}
+
+// Dessiner la grille de fond
+function drawGrid(ctx, player, canvas) {
+  const gridSize = 50;
+  if (!player) return;
+
+  // Calculer les limites de la zone visible
+  const viewportWidth = canvas.width;
+  const viewportHeight = canvas.height;
+  
+  // Calculer les coordonnées de début et fin de la grille
+  const startX = Math.floor(0 / gridSize) * gridSize;
+  const startY = Math.floor(0 / gridSize) * gridSize;
+  const endX = Math.ceil(GAME_CONFIG.WIDTH / gridSize) * gridSize;
+  const endY = Math.ceil(GAME_CONFIG.HEIGHT / gridSize) * gridSize;
+  
+  ctx.strokeStyle = "#333333";
+  ctx.lineWidth = 1;
+  
+  // Dessiner les lignes verticales
+  for (let x = startX; x <= endX; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, startY);
+    ctx.lineTo(x, endY);
+    ctx.stroke();
+  }
+  
+  // Dessiner les lignes horizontales
+  for (let y = startY; y <= endY; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(startX, y);
+    ctx.lineTo(endX, y);
+    ctx.stroke();
+  }
+}
+
+// Dessiner les limites de la map
+function drawMapBorders(ctx, player, gameMap) {
+  if (!player) return;
+
+  ctx.strokeStyle = "#FF0000";
+  ctx.lineWidth = 5;
+  ctx.strokeRect(0, 0, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
+}
+
+function drawMouseTracker(ctx, player, mouse){
+    const centerX = ctx.canvas.width / 2;
+    const centerY = ctx.canvas.height / 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(mouse.x, mouse.y);
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 }

@@ -12,6 +12,7 @@ dotenv.config();
 
 const players = {}; // Stocke tous les joueurs connectés
 const foodItems = [];
+const gameMap = null;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +30,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/public/jeu.html'));
 });
 
-const gameServer = createGameServer(players, foodItems);
+const gameServer = createGameServer(players, foodItems, gameMap);
+gameServer.initalizeGameMap(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 console.log(`Boules alimentaires initialisées: ${foodItems.length}`);
 
@@ -89,7 +91,8 @@ io.on('connection', (socket) => {
     socket.emit('gameState', { 
         players: players, 
         foodItems: foodItems,
-        animations: gameServer.getAnimations()
+        animations: gameServer.getAnimations(),
+        gameMap: gameMap
     });
     
     socket.on('playerMove', (position) => {

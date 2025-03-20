@@ -18,8 +18,18 @@ function getRandomPlayerColor() {
 
 export function updatePlayerPosition(player, x, y) {
   if (player) {
-    player.x = x;
-    player.y = y;
+    const dx = x - player.x;
+    const dy = y - player.y;
+      
+      const distance = Math.sqrt(dx * dx + dy * dy);
+        
+      if (distance > player.speed) {
+        player.x += (dx / distance) * player.speed;
+        player.y += (dy / distance) * player.speed;
+      } else {
+        player.x = x;
+        player.y = y;
+      }
   }
 }
 

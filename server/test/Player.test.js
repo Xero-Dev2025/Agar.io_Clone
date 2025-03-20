@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, beforeEach, it} from 'node:test';
-import Player from './Player.js';
+import Player from '../Player.js';
 
 describe('Player.moveTowards', () => {
   let player;

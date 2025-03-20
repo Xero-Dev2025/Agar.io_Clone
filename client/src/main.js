@@ -1,6 +1,7 @@
 import { createPlayer, updatePlayerPosition } from './player.js';
 import { drawGame } from './render.js';
 import { setupNetworking } from './network.js';
+import { worldToScreenCoordinates } from './coordinatesConverter.js';
 
 const canvas = document.querySelector('.gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -15,10 +16,11 @@ setCanvasDimensions(canvas);
 
 const allPlayers = {};
 const foodItems = [];
-const player = createPlayer(canvas.width, canvas.height);
+const gameMap = null;
+const player = {};
 const mouse = {
-  x: window.innerWidth / 2,  // Utiliser la même référence que dans updatePlayerPosition
-  y: window.innerHeight / 2
+    x: canvas.width / 2,
+    y: canvas.height / 2
 };
 
 canvas.addEventListener('mousemove', (event) => {
@@ -28,11 +30,12 @@ canvas.addEventListener('mousemove', (event) => {
 
 });
 
-const { socket, animations } = setupNetworking(player, allPlayers, foodItems);
+// Modifier l'appel pour passer le canvas
+const { socket, animations } = setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas);
 // Boucle de jeu
 function gameLoop() {
-    updatePlayerPosition(player, mouse);
-    drawGame(ctx, player, foodItems, allPlayers, socket.id, animations);
+    //updatePlayerPosition(player, mouse);
+    drawGame(ctx, player, foodItems, allPlayers, socket.id, animations, gameMap, mouse);
     requestAnimationFrame(gameLoop);
 }
 

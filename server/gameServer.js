@@ -1,8 +1,10 @@
 import { generateFoodItems } from './models/food.js';
 import { createPlayer, updatePlayerPosition, growPlayer } from './models/player.js';
+import GameMap from './GameMap.js';
 import { GAME_CONFIG } from './utils/config.js';
+import Player from './Player.js';
 
-export function createGameServer(players = {}, foodItems = []) {
+export function createGameServer(players = {}, foodItems = [], gameMap) {
   const OVERLAP_THRESHOLD = 0.7; 
   
   const consumingAnimations = [];
@@ -12,6 +14,10 @@ export function createGameServer(players = {}, foodItems = []) {
       const newFood = generateFoodItems(GAME_CONFIG.FOOD.INITIAL_COUNT, width, height);
       foodItems.push(...newFood);
     },
+
+    initalizeGameMap(width, height) {
+      gameMap = new GameMap(width, height);
+    },
     
     spawnFood(count, width, height) {
       const newFood = generateFoodItems(count, width, height);
@@ -20,12 +26,13 @@ export function createGameServer(players = {}, foodItems = []) {
     },
     
     handleConnection(socket) {
-      players[socket.id] = createPlayer(socket.id);
+      players[socket.id] = new Player(socket.id, 0, 0, GAME_CONFIG.PLAYER.INITIAL_RADIUS, 'red', 5);
     },
     
     handlePlayerMove(socketId, position) {
       if (players[socketId]) {
-        updatePlayerPosition(players[socketId], position.x, position.y);
+        //updatePlayerPosition(players[socketId], position.x, position.y);
+        players[socketId].moveTowards(position.x, position.y);
       }
     },
     

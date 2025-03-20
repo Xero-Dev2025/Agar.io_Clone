@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-export function setupNetworking(player, allPlayers, foodItems) {
+export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas) {
   const socket = io(window.location.origin);
   const animations = [];
   
@@ -13,27 +13,36 @@ export function setupNetworking(player, allPlayers, foodItems) {
   });
   
   socket.on('gameState', (gameState) => {
-    handleGameState(gameState, socket, player, allPlayers, foodItems, animations);
+    handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap);
   });
   
   setInterval(() => {
-    socket.emit('playerMove', { x: player.x, y: player.y });
-  }, 50);
+    // Convertir les coordonnées écran en coordonnées monde
+    const worldX = player.x + (mouse.x - canvas.width/2);
+    const worldY = player.y + (mouse.y - canvas.height/2);
+    
+    socket.emit('playerMove', {x: worldX, y: worldY});
+  }, 1000/60);
   
   return { socket, animations };
 }
 
-function handleGameState(gameState, socket, player, allPlayers, foodItems, animations) {
+function handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap) {
   Object.keys(allPlayers).forEach(id => delete allPlayers[id]);
   
   if (gameState && gameState.players) {
-    Object.keys(gameState.players).forEach(id => {
-      allPlayers[id] = gameState.players[id];
-      
-      if (id === socket.id) {
-        player.radius = gameState.players[id].radius;
-      }
-    });
+    // Copier tous les joueurs dans allPlayers
+    Object.assign(allPlayers, gameState.players);
+    
+    // Récupérer le joueur correspondant à la socket actuelle
+    if (gameState.players[socket.id]) {
+      Object.assign(player, gameState.players[socket.id]);
+      console.log('Player actualisé:', player);
+    }
+  }
+
+  if (gameState && gameState.gameMap){
+    gameMap = gameState.gameMap;
   }
   
   foodItems.length = 0;
