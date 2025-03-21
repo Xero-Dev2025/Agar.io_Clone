@@ -1,7 +1,8 @@
-export function showGameOver(stats = {}) {
+export function showGameOver(stats = {}, username) {
     const canvas = document.querySelector('.gameCanvas');
     const nameGame = document.querySelector('.nameGame');
     
+    const gameOverUsername = document.querySelector('.gameOverUsername');
     const gameOverScore = document.querySelector('.gameOverScore');
     const gameOverHighScore = document.querySelector('.gameOverHighScore');
     const gameOverTimeAlive = document.querySelector('.gameOverTime');
@@ -15,7 +16,7 @@ export function showGameOver(stats = {}) {
     if (gameOverScreen) {
       gameOverScreen.style.display = 'block';
       
-
+      if (gameOverUsername) gameOverUsername.textContent = username || 'Anonymous';
       if (gameOverScore) gameOverScore.textContent = stats.score || 0;
       if (gameOverHighScore) gameOverHighScore.textContent = stats.highScore || stats.score || 0;
       if (gameOverTimeAlive) gameOverTimeAlive.textContent = stats.timeAlive || 0;
@@ -29,4 +30,4 @@ export function showGameOver(stats = {}) {
         window.location.reload();
       };
     }
-  }
+}

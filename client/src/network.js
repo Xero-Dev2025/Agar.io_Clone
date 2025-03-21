@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import { showGameOver } from './gameOver.js';
+import { setupLoginForm } from './login.js';
 
 export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas) {
   const socket = io(window.location.origin);
@@ -7,6 +8,7 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   
   socket.on('connect', () => {
     console.log('Connecté au serveur avec l\'ID:', socket.id);
+    setupLoginForm(socket);
   });
   
   socket.on('connect_error', (error) => {
@@ -23,10 +25,12 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   });
   
   setInterval(() => {
-    const worldX = player.x + (mouse.x - canvas.width/2);
-    const worldY = player.y + (mouse.y - canvas.height/2);
-    
-    socket.emit('playerMove', {x: worldX, y: worldY});
+    if (document.body.classList.contains('login-active') === false) {
+      const worldX = player.x + (mouse.x - canvas.width/2);
+      const worldY = player.y + (mouse.y - canvas.height/2);
+      
+      socket.emit('playerMove', {x: worldX, y: worldY});
+    }
   }, 1000/60);
   
   return { socket, animations };
@@ -37,7 +41,7 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
   
   if (!playerExists && Object.keys(allPlayers).includes(socket.id)) {
     console.log("Joueur disparu du gameState - affichage game over");
-    showGameOver(allPlayers[socket.id]?.stats || {});
+    showGameOver(allPlayers[socket.id]?.stats || {}, allPlayers[socket.id]?.username);
     return;
   }
   

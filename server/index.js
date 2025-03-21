@@ -28,8 +28,8 @@ const port = process.env.PORT || 8081;
 app.use(express.static(path.join(__dirname, '../client/public')));
 app.use('/shared', express.static(path.join(__dirname, '../shared')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/public/jeu.html'));
+app.get('/paku', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/public/game.html'));
 });
 
 const gameServer = createGameServer(players, foodItems, gameMap);
@@ -114,6 +114,20 @@ io.on('connection', (socket) => {
         foodItems: foodItems,
         animations: gameServer.getAnimations(),
         gameMap: gameMap
+    });
+    
+    socket.on('setUsername', (username) => {
+        if (players[socket.id] && username) {
+            players[socket.id].setUsername(username);
+            console.log(`Player ${socket.id} set username to: ${username}`);
+            
+            io.emit('gameState', { 
+                players: players, 
+                foodItems: foodItems,
+                animations: gameServer.getAnimations(),
+                gameMap: gameMap
+            });
+        }
     });
     
     socket.on('playerMove', (position) => {

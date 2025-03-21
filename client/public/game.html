@@ -11,10 +11,24 @@
 
         <script src="build/main.bundle.js" defer></script>
     </head>
-    <body>
+    <body class="login-active">
+        <div id="loginOverlay">
+            <div class="login-container">
+                <h2>Welcome to Paku.io</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Enter your nickname</label>
+                        <input type="text" id="username" name="username" autofocus maxlength="15" placeholder="Nick">
+                    </div>
+                    <button type="submit" class="play-button">Play</button>
+                </form>
+            </div>
+        </div>
+        
         <div class="gameOver" style="display: none;">
             <h1>Game Over</h1>
             <div class="stats">
+            <p>Player: <span class="gameOverUsername">Anonymous</span></p>
             <p>Score: <span class="gameOverScore">0</span></p>
             <p>High Score: <span class="gameOverHighScore">0</span></p>
             <p>Time Alive: <span class="gameOverTime">0</span> seconds</p>
