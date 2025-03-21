@@ -13,15 +13,87 @@
     </head>
     <body class="login-active">
         <div id="loginOverlay">
-            <div class="login-container">
-                <h2>Welcome to Paku.io</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Enter your nickname</label>
-                        <input type="text" id="username" name="username" autofocus maxlength="15" placeholder="Nick">
+            <div class="login-page-layout">
+                <div class="login-sidebar left-sidebar">
+                    <div class="sidebar-box settings-box">
+                        <h3>Controls</h3>
+                        <div class="controls-content">
+                            <div class="control-item">
+                                <span class="control-key">Mouse</span>
+                                <span class="control-action">Move your cell</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">Space</span>
+                                <span class="control-action">Split</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">W</span>
+                                <span class="control-action">Eject mass</span>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="play-button">Play</button>
-                </form>
+                    
+                    <div class="sidebar-box credits-box">
+                        <h3>Credits</h3>
+                        <div class="credits-content">
+                            <p class="credit-item">Game Development: JSAÉ Team</p>
+                            <p class="credit-item">Inspiration: Agar.io & Pac-Man</p>
+                            <p class="credit-item">Version: 1.0.0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="login-container">
+                    <h2>Welcome to Paku.io</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Enter your nickname</label>
+                            <input type="text" id="username" name="username" autofocus maxlength="15" placeholder="Nick">
+                        </div>
+                        <button type="submit" class="play-button">Play</button>
+                    </form>
+                </div>
+                
+                <div class="login-sidebar right-sidebar">
+                    <div class="sidebar-box rules-box">
+                        <h3>Rules</h3>
+                        <div class="rules-content">
+                            <p class="rule-item">• Move your cell with the mouse</p>
+                            <p class="rule-item">• Consume food dots to grow bigger</p>
+                            <p class="rule-item">• You can eat players smaller than you</p>
+                            <p class="rule-item">• Beware of larger players!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-box achievements-box">
+                        <h3>Achievements</h3>
+                        <div class="achievements-content">
+                            <div class="achievement-item">
+                                <span class="achievement-name">Hungry Beginner</span>
+                                <span class="achievement-desc">Eat 10 food items</span>
+                            </div>
+                            <div class="achievement-item">
+                                <span class="achievement-name">Predator</span>
+                                <span class="achievement-desc">Eat 5 players</span>
+                            </div>
+                            <div class="achievement-item">
+                                <span class="achievement-name">Survivor</span>
+                                <span class="achievement-desc">Live for 5 minutes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modalOverlay" style="display: none;">
+            <div id="modalContainer">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Controls</h2>
+                    <button id="modalClose">&times;</button>
+                </div>
+                <div id="modalContent">
+                </div>
             </div>
         </div>
         
@@ -35,9 +107,8 @@
             <p>Players Eaten: <span class="gameOverPeopleEaten">0</span></p>
             <p>Food Eaten: <span class="gameOverFoodEaten">0</span></p>
             </div>
-            <button id="restartButton">Play Again</button>
+            <button class="restartButton">Play Again</button>
         </div>
-        <h1><em>JSAÉ</em> Paku.io </h1>
         <canvas class="gameCanvas"></canvas>
     </body>
 </html>

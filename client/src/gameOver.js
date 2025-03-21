@@ -24,7 +24,7 @@ export function showGameOver(stats = {}, username) {
       if (gameOverFoodEaten) gameOverFoodEaten.textContent = stats.foodEaten || 0;
     }
     
-    const restartButton = document.getElementById('restartButton');
+    const restartButton = document.querySelector('.restartButton');
     if (restartButton) {
       restartButton.onclick = () => {
         window.location.reload();
