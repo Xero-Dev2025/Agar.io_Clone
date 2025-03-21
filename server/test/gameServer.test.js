@@ -45,4 +45,44 @@ describe('GameServer', () => {
         gameServer.handleDisconnect(mockSocket.id);
         assert.ok(!players[mockSocket.id]);
     });
+
+    it('should spawn multiple players with minimum distance between them', () => {
+        const mockSockets = [
+            { id: 'player1' },
+            { id: 'player2' },
+            { id: 'player3' }
+        ];
+
+        mockSockets.forEach(socket => {
+            gameServer.handleConnection(socket);
+        });
+
+        mockSockets.forEach(socket => {
+            assert.ok(players[socket.id]);
+        });
+
+        const playerPairs = [];
+        Object.values(players).forEach((player1, i) => {
+            Object.values(players).slice(i + 1).forEach(player2 => {
+                playerPairs.push([player1, player2]);
+            });
+        });
+
+        playerPairs.forEach(([player1, player2]) => {
+            const dx = player1.x - player2.x;
+            const dy = player1.y - player2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = player1.radius * 2;
+
+            assert.ok(
+                distance >= minDistance,
+                `Players ${player1.id} and ${player2.id} are too close: ${distance} < ${minDistance}`
+            );
+        });
+
+        Object.values(players).forEach(player => {
+            assert.ok(player.x >= 0 && player.x <= gameMap.width);
+            assert.ok(player.y >= 0 && player.y <= gameMap.height);
+        });
+    });
 });
