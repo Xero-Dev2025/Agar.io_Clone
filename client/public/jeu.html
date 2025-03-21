@@ -12,6 +12,17 @@
         <script src="build/main.bundle.js" defer></script>
     </head>
     <body>
+        <div class="gameOver" style="display: none;">
+            <h1>Game Over</h1>
+            <div class="stats">
+            <p>Score: <span class="gameOverScore">0</span></p>
+            <p>High Score: <span class="gameOverHighScore">0</span></p>
+            <p>Time Alive: <span class="gameOverTime">0</span> seconds</p>
+            <p>Players Eaten: <span class="gameOverPeopleEaten">0</span></p>
+            <p>Food Eaten: <span class="gameOverFoodEaten">0</span></p>
+            </div>
+            <button id="restartButton">Play Again</button>
+        </div>
         <h1><em>JSAÉ</em> Paku.io </h1>
         <canvas class="gameCanvas"></canvas>
     </body>

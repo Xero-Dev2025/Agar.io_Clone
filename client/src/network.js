@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { showGameOver } from './gameOver.js';
 
 export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas) {
   const socket = io(window.location.origin);
@@ -16,8 +17,12 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
     handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap);
   });
   
+  socket.on('playerEaten', (stats) => {
+    console.log('Vous avez été mangé! Stats:', stats);
+    showGameOver(stats);
+  });
+  
   setInterval(() => {
-    // Convertir les coordonnées écran en coordonnées monde
     const worldX = player.x + (mouse.x - canvas.width/2);
     const worldY = player.y + (mouse.y - canvas.height/2);
     
@@ -28,19 +33,26 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
 }
 
 function handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap) {
+  const playerExists = gameState.players && gameState.players[socket.id];
+  
+  if (!playerExists && Object.keys(allPlayers).includes(socket.id)) {
+    console.log("Joueur disparu du gameState - affichage game over");
+    showGameOver(allPlayers[socket.id]?.stats || {});
+    return;
+  }
+  
+  if (playerExists) {
+    Object.assign(player, gameState.players[socket.id]);
+  }
+  
   Object.keys(allPlayers).forEach(id => delete allPlayers[id]);
   
   if (gameState && gameState.players) {
-    // Copier tous les joueurs dans allPlayers
-    Object.assign(allPlayers, gameState.players);
-    
-    // Récupérer le joueur correspondant à la socket actuelle
-    if (gameState.players[socket.id]) {
-      Object.assign(player, gameState.players[socket.id]);
-      console.log('Player actualisé:', player);
-    }
+    Object.keys(gameState.players).forEach(id => {
+      allPlayers[id] = gameState.players[id];
+    });
   }
-
+  
   if (gameState && gameState.gameMap) {
     Object.assign(gameMap, gameState.gameMap);
   }

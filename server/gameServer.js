@@ -120,6 +120,8 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       food.isBeingConsumed = true;
       food.consumingPlayerId = playerId;
       
+      player.incrementFoodEaten();
+
       const animation = {
         id: Date.now() + Math.random().toString(36).substr(2, 5), 
         foodId: food.id,
@@ -217,6 +219,13 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
         
         player.radius = newRadius;
         
+        console.log(`DIRECT: Player ${player.id} a maintenant mangé ${player.stats.playersEaten} joueurs`);
+        
+        player.incrementPlayersEaten();
+        player.updateStats();
+        
+        const eatenPlayerStats = JSON.parse(JSON.stringify(other.stats));
+
         const animation = {
           id: Date.now() + Math.random().toString(36).substr(2, 5),
           playerId: player.id,
@@ -226,14 +235,27 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
           startPosition: { x: other.x, y: other.y },
           targetPosition: { x: player.x, y: player.y },
           initialEatenRadius: other.radius,
-          completed: false
+          completed: false,
+          eatenPlayerStats: eatenPlayerStats
         };
         
         consumingAnimations.push(animation);
+
+        const result = { 
+          predator: player, 
+          prey: { 
+            id: other.id, 
+            stats: eatenPlayerStats 
+          }, 
+          action: 'consume' 
+        };
+
         delete players[other.id];
         
-        return { predator: player, prey: other, action: 'consume' };
+        return result;
+
       }
+
       else if (otherIsLarger && overlapPercentage >= PLAYER_OVERLAP_THRESHOLD) {
         const playerArea = Math.PI * player.radius * player.radius;
         const otherArea = Math.PI * other.radius * other.radius;
@@ -241,6 +263,11 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
         
         other.radius = newRadius;
         
+        other.incrementPlayersEaten();
+        other.updateStats();
+
+        const eatenPlayerStats = { ...player.stats };
+
         const animation = {
           id: Date.now() + Math.random().toString(36).substr(2, 5),
           playerId: other.id,
@@ -250,13 +277,24 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
           startPosition: { x: player.x, y: player.y },
           targetPosition: { x: other.x, y: other.y },
           initialEatenRadius: player.radius,
-          completed: false
+          completed: false,
+          eatenPlayerStats: eatenPlayerStats
         };
         
         consumingAnimations.push(animation);
+
+        const result = { 
+          predator: other, 
+          prey: { 
+            id: player.id, 
+            stats: eatenPlayerStats 
+          }, 
+          action: 'consume' 
+        };
+
         delete players[player.id];
         
-        return { predator: other, prey: player, action: 'consume' };
+        return result;
       }
       else {
         return { player, other, action: 'pass' };

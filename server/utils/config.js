@@ -18,5 +18,10 @@ export const GAME_CONFIG = {
     ANIMATION: {
       CONSUME_DURATION: 300, 
       GROWTH_DURATION: 300   
+    },
+
+    SCORE: {
+      FOOD_VALUE: 10,
+      PLAYER_VALUE: 100
     }
 };

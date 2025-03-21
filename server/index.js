@@ -6,11 +6,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createGameServer } from './gameServer.js';
 import { GAME_CONFIG } from './utils/config.js';
-import Player from './Player.js'; // Importer la classe Player
 
 dotenv.config();
 
-const players = {}; // Stocke tous les joueurs connectés
+const players = {}; 
 const foodItems = [];
 const gameMap = {
     width: GAME_CONFIG.WIDTH,
@@ -82,10 +81,29 @@ function startAnimationUpdates() {
     }, ANIMATION_UPDATE_INTERVAL);
 }
 
+function startStatsUpdates() {
+    setInterval(() => {
+        Object.values(players).forEach(player => {
+            if (player && player.updateStats) {
+                player.updateStats();
+            }
+        });
+        
+        if (Object.keys(players).length > 0) {
+            io.emit('gameState', { 
+                players: players, 
+                foodItems: foodItems,
+                animations: gameServer.getAnimations(),
+                gameMap: gameMap
+            });
+        }
+    }, 1000); 
+}
+
+startStatsUpdates();
 startFoodSpawning();
 startAnimationUpdates();
 
-// Gestion des connexions des joueurs
 io.on('connection', (socket) => {
     console.log('Nouveau joueur connecté:', socket.id);
     
@@ -101,24 +119,39 @@ io.on('connection', (socket) => {
     socket.on('playerMove', (position) => {
         gameServer.handlePlayerMove(socket.id, position);
         
+        if (players[socket.id]) {
+            players[socket.id].updateStats();
+        }
+        
         const collisionsFood = gameServer.detectFoodCollisions(socket.id);
         
         const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
-
+        
         if (collisionsFood.length > 0) {
-            
             collisionsFood.forEach(food => {
                 gameServer.handleFoodCollision(socket.id, food);
             });
         }
-
+        
         if (collisionsPlayers.length > 0) {
-            
-            collisionsPlayers.forEach(player => {
-                gameServer.handlePlayerCollision(socket.id, player);
+            collisionsPlayers.forEach(otherPlayer => {
+                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer);
+                
+                if (result && result.action === 'consume') {
+                    console.log(`Joueur ${result.predator.id} a mangé ${result.prey.id}`);
+                    console.log(`Statistiques du prédateur:`, result.predator.stats);
+                    
+                    io.to(result.prey.id).emit('playerEaten', result.prey.stats || {});
+                }
             });
         }
-
+        
+        if (Math.random() < 0.01) { 
+            console.log(`Statistiques des joueurs:`, Object.fromEntries(
+                Object.entries(players).map(([id, p]) => [id, p.stats])
+            ));
+        }
+        
         io.emit('gameState', { 
             players: players, 
             foodItems: foodItems,
@@ -126,7 +159,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Gérer la déconnexion d'un joueur
     socket.on('disconnect', () => {
         console.log('Joueur déconnecté:', socket.id);
         gameServer.handleDisconnect(socket.id);

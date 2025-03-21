@@ -4,7 +4,10 @@ import { setupNetworking } from './network.js';
 const canvas = document.querySelector('.gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Définir les dimensions du canvas
+const gameOver = document.querySelector('.gameOver');
+
+if (gameOver) gameOver.style.display = 'none';
+
 function setCanvasDimensions(canvas) {
     canvas.width = window.innerWidth - 20;
     canvas.height = window.innerHeight - 100;
@@ -31,14 +34,10 @@ canvas.addEventListener('mousemove', (event) => {
 
 });
 
-// Modifier l'appel pour passer le canvas
 const { socket, animations } = setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas);
-// Boucle de jeu
 function gameLoop() {
-    //updatePlayerPosition(player, mouse);
     drawGame(ctx, player, foodItems, allPlayers, socket.id, animations, gameMap, mouse);
     requestAnimationFrame(gameLoop);
 }
 
-// Démarrer la boucle de jeu
 gameLoop();
