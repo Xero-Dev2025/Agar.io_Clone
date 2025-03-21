@@ -24,8 +24,28 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       return newFood.length;
     },
     
+    
     handleConnection(socket) {
-      players[socket.id] = new Player(socket.id, 0, 0, GAME_CONFIG.PLAYER.INITIAL_RADIUS, 'red', 5);
+      let x;
+      let y;
+      let spawnPossible = false;
+
+      while (!spawnPossible){
+        x = Math.random() * gameMap.width;
+        y = Math.random() * gameMap.height;
+        spawnPossible = true;
+
+        Object.values(players).forEach(p => {
+          const dx = x - p.x;
+          const dy = y - p.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance <= p.radius * 2) {
+            spawnPossible = false;
+          }
+        });
+      }
+      
+      players[socket.id] = new Player(socket.id, x, y, GAME_CONFIG.PLAYER.INITIAL_RADIUS, 'red', 5);
     },
     
     handlePlayerMove(socketId, position) {
