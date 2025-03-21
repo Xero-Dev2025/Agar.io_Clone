@@ -151,7 +151,7 @@ function drawHUD(ctx, player) {
   ctx.font = "18px Arial";
   ctx.textAlign = "left";
   ctx.fillText(`Position: (${Math.round(player.x)}, ${Math.round(player.y)})`, 10, 20);
-  ctx.fillText(`Taille: ${Math.round(player.size)}`, 10, 40);
+  ctx.fillText(`Score: ${player.stats?.score || 0}`, 10, 40);
 }
 
 // Dessiner la grille de fond
