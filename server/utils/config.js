@@ -1,11 +1,12 @@
 export const GAME_CONFIG = {
-    WIDTH: 2000,
-    HEIGHT: 2000,
+    WIDTH: 11000,
+    HEIGHT: 11000,
     
     PLAYER: {
       INITIAL_RADIUS: 30,
       GROWTH_FACTOR: 1.05,
-      SPEED: 5
+      MAX_SCORE: 22500,
+      SPEED: 5,
     },
     
     FOOD: {

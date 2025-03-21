@@ -65,7 +65,6 @@ export default class Player {
             const currentTime = Date.now();
             const seconds = Math.floor((currentTime - this.creationTime) / 1000);
             this.stats.timeAlive = seconds;
-            console.log(`Player ${this.id} has been alive for ${seconds} seconds`);
         }
     }
     
@@ -78,28 +77,3 @@ export default class Player {
         this.stats.foodEaten += 1;
     }
 }
-
-
-
-
-        /*
-        // Calculer le vecteur de direction depuis le centre du canvas
-        const centerX = GAME_CONFIG.WIDTH / 2;
-        const centerY = GAME_CONFIG.HEIGHT / 2;
-        
-        // Calculer la direction en fonction de la position de la souris par rapport au centre
-        const dx = targetX.x - centerX;
-        const dy = targetY.y - centerY;
-        
-        // Vecteur de direction
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance > 0) {
-            const directionX = dx / distance;
-            const directionY = dy / distance;
-            
-            // Appliquer le mouvement en fonction de la direction et de la vitesse
-            this.x += directionX * this.speed;
-            this.y += directionY * this.speed;
-        }
-        */
