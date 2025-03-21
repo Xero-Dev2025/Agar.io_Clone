@@ -75,6 +75,9 @@ function drawMainPlayer(ctx, player, mouse) {
   ctx.fillStyle = player.color;
   ctx.fill();
   ctx.closePath();
+  
+  // Dessiner le nom du joueur
+  drawPlayerName(ctx, player);
 }
 
 function drawOtherPlayers(ctx, allPlayers, socketId) {
@@ -87,9 +90,31 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
         ctx.fillStyle = 'blue';
         ctx.fill();
         ctx.closePath();
+        
+        // Dessiner le nom du joueur
+        drawPlayerName(ctx, otherPlayer);
       }
     }
   });
+}
+
+/**
+ * Dessine le nom d'un joueur sur son avatar
+ * @param {CanvasRenderingContext2D} ctx - Le contexte 2D du canvas
+ * @param {Object} player - Le joueur à dessiner
+ */
+function drawPlayerName(ctx, player) {
+  if (!player.username) return;
+  
+  // Calculer la taille de police adaptée au rayon (min 12px, max 20px)
+  const fontSize = Math.max(12, Math.min(20, player.radius / 3));
+
+  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#FFFFFF";
+  
+  ctx.fillText(player.username, player.x, player.y);
 }
 
 function drawConsumingAnimations(ctx, animations, foodItems) {

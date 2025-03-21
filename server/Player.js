@@ -7,14 +7,16 @@ export default class Player {
     speed;
     stats;
     creationTime;
+    username;
 
-    constructor(id, x, y, radius, color, speed) {
+    constructor(id, x, y, radius, color, speed, username = "Anonymous") {
         this.id = id;
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = color;
         this.speed = speed;
+        this.username = username;
         this.creationTime = Date.now();
         
         this.stats = {
@@ -77,11 +79,11 @@ export default class Player {
     incrementFoodEaten() {
         this.stats.foodEaten += 1;
     }
+
+    setUsername(username) {
+        this.username = username;
+    }
 }
-
-
-
-
         /*
         // Calculer le vecteur de direction depuis le centre du canvas
         const centerX = GAME_CONFIG.WIDTH / 2;
