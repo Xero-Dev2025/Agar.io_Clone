@@ -21,6 +21,8 @@ function loadUsers() {
             const data = fs.readFileSync(USERS_FILE, 'utf8');
             return JSON.parse(data);
     }
+
+    return {};
 }
 
 function saveUsers(users) {
