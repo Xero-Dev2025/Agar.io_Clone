@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createGameServer } from './gameServer.js';
 import { GAME_CONFIG } from './utils/config.js';
+import auth from './auth.js';
 
 dotenv.config();
 
@@ -35,7 +36,7 @@ app.get('/paku', (req, res) => {
 const gameServer = createGameServer(players, foodItems, gameMap);
 gameServer.initalizeGameMap(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
-console.log(`Boules alimentaires initialisées: ${foodItems.length}`);
+// console.log(`Boules alimentaires initialisées: ${foodItems.length}`);
 
 function startFoodSpawning() {
     setInterval(() => {
@@ -51,7 +52,7 @@ function startFoodSpawning() {
                     GAME_CONFIG.WIDTH, 
                     GAME_CONFIG.HEIGHT
                 );
-                console.log(`${newFood} nouvelles boules alimentaires générées (total: ${foodItems.length})`);
+                // console.log(`${newFood} nouvelles boules alimentaires générées (total: ${foodItems.length})`);
                 
                 if (Object.keys(players).length > 0) {
                     io.emit('gameState', { 
@@ -116,10 +117,51 @@ io.on('connection', (socket) => {
         gameMap: gameMap
     });
     
+    socket.on('login', (data, callback) => {
+        console.log(`Tentative de connexion pour: ${data.username}`);
+        const result = auth.authenticateUser(data.username, data.password);
+        
+        if (result.success) {
+            console.log(`Connexion réussie pour: ${data.username}`);
+            const userStats = auth.getUserStats(data.username);
+            result.stats = userStats;
+            
+            socket.user = {
+                username: data.username,
+                authenticated: true
+            };
+            console.log(`Session créée pour l'utilisateur: ${data.username}`);
+        } else {
+            console.log(`Échec de connexion pour: ${data.username}`);
+        }
+        
+        callback(result);
+    });
+
+    socket.on('reauthenticate', (data) => {
+        socket.user = {
+            username: data.username,
+            authenticated: data.authenticated
+        };
+    });
+
+    socket.on('register', (data, callback) => {
+        console.log(`Tentative d'inscription pour: ${data.username}`);
+        const result = auth.registerUser(data.username, data.password);
+        
+        if (result.success) {
+            console.log(`Inscription réussie pour: ${data.username}`);
+        } else {
+            console.log(`Échec d'inscription pour: ${data.username} - ${result.message}`);
+        }
+        
+        callback(result);
+    });
+    
     socket.on('setUsername', (username) => {
         if (players[socket.id] && username) {
             players[socket.id].setUsername(username);
-            console.log(`Player ${socket.id} set username to: ${username}`);
+            console.log(`Joueur ${socket.id} a pour pseudo : ${username}`);
             
             io.emit('gameState', { 
                 players: players, 
@@ -152,8 +194,8 @@ io.on('connection', (socket) => {
                 const result = gameServer.handlePlayerCollision(socket.id, otherPlayer);
                 
                 if (result && result.action === 'consume') {
-                    console.log(`Joueur ${result.predator.id} a mangé ${result.prey.id}`);
-                    console.log(`Statistiques du prédateur:`, result.predator.stats);
+                    // console.log(`Joueur ${result.predator.id} a mangé ${result.prey.id}`);
+                    // console.log(`Statistiques du prédateur:`, result.predator.stats);
                     
                     io.to(result.prey.id).emit('playerEaten', result.prey.stats || {});
                 }
@@ -161,15 +203,36 @@ io.on('connection', (socket) => {
         }
         
         if (Math.random() < 0.01) { 
-            console.log(`Statistiques des joueurs:`, Object.fromEntries(
+            /*console.log(`Statistiques des joueurs:`, Object.fromEntries(
                 Object.entries(players).map(([id, p]) => [id, p.stats])
-            ));
+            ));*/
         }
         
         io.emit('gameState', { 
             players: players, 
             foodItems: foodItems,
             animations: gameServer.getAnimations()
+        });
+    });
+
+    socket.on('playerEaten', (data) => {
+        if (socket.user && socket.user.authenticated) {
+            const username = socket.user.username;
+            const stats = data;
+            console.log(`Enregistrement des statistiques pour ${username}:`, stats);
+            auth.updateUserStats(username, stats);
+        } else {
+            console.log('Utilisateur non authentifié ou anonyme, statistiques non enregistrées.');
+        }
+    });
+
+    socket.on('getPlayerStats', (username) => {
+        console.log(`Récupération des statistiques pour ${username}`);
+        const userStats = auth.getUserStats(username);
+        
+        socket.emit('playerStats', {
+            username: username,
+            stats: userStats || {}
         });
     });
 
