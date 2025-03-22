@@ -1,7 +1,6 @@
 export function setupLoginForm(socket) {    
     const loginOverlay = document.getElementById('loginOverlay');
     const profileOverlay = document.getElementById('profileOverlay');
-    const loginPageLayout = document.querySelector('.login-page-layout');
     
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -84,7 +83,8 @@ export function setupLoginForm(socket) {
     });
     
     function displayProfile(response, socket) {
-        loginPageLayout.style.display = 'none';
+        document.getElementById('authForms').style.display = 'none';
+        
         profileOverlay.style.display = 'flex';
         profileOverlay.style.justifyContent = 'center';
         profileOverlay.style.alignItems = 'center';

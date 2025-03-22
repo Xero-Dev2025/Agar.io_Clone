@@ -47,55 +47,106 @@
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 20px">
-                <div class="login-container">
-                    <h2>Welcome to Paku.io</h2>
-                    <div class="form-toggle-buttons">
-                        <button type="button" id="showLoginForm" class="form-toggle-btn active">
-                            Login
-                        </button>
-                        <button type="button" id="showRegisterForm" class="form-toggle-btn">
-                            Register
-                        </button>
+            <div class="center-content">
+                <div id="authForms">
+                    <div class="login-container">
+                        <h2>Welcome to Paku.io</h2>
+                        <div class="form-toggle-buttons">
+                            <button type="button" id="showLoginForm" class="form-toggle-btn active">
+                                Login
+                            </button>
+                            <button type="button" id="showRegisterForm" class="form-toggle-btn">
+                                Register
+                            </button>
+                        </div>
+
+                        <form id="loginForm" class="auth-form">
+                            <div class="form-group">
+                                <label for="loginUsername">Username</label>
+                                <input type="text" id="loginUsername" name="username" required maxlength="15"
+                                    placeholder="Username" />
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" name="password" required placeholder="Password" />
+                            </div>
+                            <button type="submit" class="play-button">Login</button>
+                        </form>
+
+                        <form id="registerForm" class="auth-form" style="display: none">
+                            <div class="form-group">
+                                <label for="registerUsername">Username</label>
+                                <input type="text" id="registerUsername" name="username" required maxlength="15"
+                                    placeholder="Username" />
+                            </div>
+                            <div class="form-group">
+                                <label for="registerPassword">Password</label>
+                                <input type="password" id="registerPassword" name="password" required
+                                    placeholder="Password" />
+                            </div>
+                            <button type="submit" class="play-button">Register</button>
+                        </form>
                     </div>
 
-                    <form id="loginForm" class="auth-form">
-                        <div class="form-group">
-                            <label for="loginUsername">Username</label>
-                            <input type="text" id="loginUsername" name="username" required maxlength="15"
-                                placeholder="Username" />
-                        </div>
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" name="password" required placeholder="Password" />
-                        </div>
-                        <button type="submit" class="play-button">Login</button>
-                    </form>
-
-                    <form id="registerForm" class="auth-form" style="display: none">
-                        <div class="form-group">
-                            <label for="registerUsername">Username</label>
-                            <input type="text" id="registerUsername" name="username" required maxlength="15"
-                                placeholder="Username" />
-                        </div>
-                        <div class="form-group">
-                            <label for="registerPassword">Password</label>
-                            <input type="password" id="registerPassword" name="password" required
-                                placeholder="Password" />
-                        </div>
-                        <button type="submit" class="play-button">Register</button>
-                    </form>
+                    <div class="login-container">
+                        <h2>Quick Play</h2>
+                        <form id="guestForm" class="auth-form" style="display: block">
+                            <div class="form-group">
+                                <label for="guestUsername">Enter your nickname</label>
+                                <input type="text" id="guestUsername" name="username" maxlength="15" placeholder="Nick" />
+                            </div>
+                            <button type="submit" class="play-button">Play as Guest</button>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="login-container">
-                    <h2>Quick Play</h2>
-                    <form id="guestForm" class="auth-form" style="display: block">
-                        <div class="form-group">
-                            <label for="guestUsername">Enter your nickname</label>
-                            <input type="text" id="guestUsername" name="username" maxlength="15" placeholder="Nick" />
+                
+                <div id="profileOverlay" style="display: none;">
+                    <div class="profile-container">
+                        <h2>Welcome back, <span id="profileUsername">Player</span> !</h2>
+                        
+                        <div class="profile-stats">
+                            <div class="stats-section">
+                                <h3>Game Records</h3>
+                                <div class="stat-item">
+                                    <span class="stat-label">Highest Score:</span>
+                                    <span id="profileHighScore">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Games Played:</span>
+                                    <span id="profileGamesPlayed">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Longest Alive:</span>
+                                    <span id="profileLongestTimeAlive">0</span> <span class="unit">seconds</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-section">
+                                <h3>Career Totals</h3>
+                                <div class="stat-item">
+                                    <span class="stat-label">Players Eaten:</span>
+                                    <span id="profilePlayersEaten">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Food Eaten:</span>
+                                    <span id="profileFoodEaten">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Alive:</span>
+                                    <span id="profileTotalTimeAlive">0</span> <span class="unit">seconds</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Score:</span>
+                                    <span id="profileTotalScore">0</span>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submit" class="play-button">Play as Guest</button>
-                    </form>
+
+                        <div class="profile-actions">
+                            <button id="playButton" class="play-button">Play Game</button>
+                            <button id="logoutButton" class="logout-button">Logout</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -126,55 +177,6 @@
                             <span class="achievement-desc">Live for 5 minutes</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="profileOverlay" style="display: none;">
-            <div class="profile-container">
-                <h2>Welcome back, <span id="profileUsername">Player</span> !</h2>
-                
-                <div class="profile-stats">
-                    <div class="stats-section">
-                        <h3>Game Records</h3>
-                        <div class="stat-item">
-                            <span class="stat-label">Highest Score:</span>
-                            <span id="profileHighScore">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Games Played:</span>
-                            <span id="profileGamesPlayed">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Longest Alive:</span>
-                            <span id="profileLongestTimeAlive">0</span> <span class="unit">seconds</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stats-section">
-                        <h3>Career Totals</h3>
-                        <div class="stat-item">
-                            <span class="stat-label">Players Eaten:</span>
-                            <span id="profilePlayersEaten">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Food Eaten:</span>
-                            <span id="profileFoodEaten">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Total Alive:</span>
-                            <span id="profileTotalTimeAlive">0</span> <span class="unit">seconds</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Total Score:</span>
-                            <span id="profileTotalScore">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-actions">
-                    <button id="playButton" class="play-button">Play Game</button>
-                    <button id="logoutButton" class="logout-button">Logout</button>
                 </div>
             </div>
         </div>
