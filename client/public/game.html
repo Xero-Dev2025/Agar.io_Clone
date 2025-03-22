@@ -1,114 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <title>Paku.io</title>
+    <title>Paku.io</title>
 
-        <link rel="icon" href="images/favicon.png" sizes="96x96" />
-        <link rel="stylesheet" href="css/global.css" />
+    <link rel="icon" href="images/favicon.png" sizes="96x96" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/auth-forms.css" />
+    <link rel="stylesheet" href="css/profile.css" />
 
-        <script src="build/main.bundle.js" defer></script>
-    </head>
-    <body class="login-active">
-        <div id="loginOverlay">
-            <div class="login-page-layout">
-                <div class="login-sidebar left-sidebar">
-                    <div class="sidebar-box settings-box">
-                        <h3>Controls</h3>
-                        <div class="controls-content">
-                            <div class="control-item">
-                                <span class="control-key">Mouse</span>
-                                <span class="control-action">Move your cell</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-key">Space</span>
-                                <span class="control-action">Split</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-key">W</span>
-                                <span class="control-action">Eject mass</span>
-                            </div>
+    <script src="build/main.bundle.js" defer></script>
+</head>
+<body class="login-active">
+    <div id="notification-box" class="notification hidden"></div>
+
+    <div id="loginOverlay">
+        <div class="login-page-layout">
+            <div class="login-sidebar left-sidebar">
+                <div class="sidebar-box settings-box">
+                    <h3>Controls</h3>
+                    <div class="controls-content">
+                        <div class="control-item">
+                            <span class="control-key">Mouse</span>
+                            <span class="control-action">Move your cell</span>
                         </div>
-                    </div>
-                    
-                    <div class="sidebar-box credits-box">
-                        <h3>Credits</h3>
-                        <div class="credits-content">
-                            <p class="credit-item">Game Development: JSAÉ Team</p>
-                            <p class="credit-item">Inspiration: Agar.io & Pac-Man</p>
-                            <p class="credit-item">Version: 1.0.0</p>
+                        <div class="control-item">
+                            <span class="control-key">Space</span>
+                            <span class="control-action">Split</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="control-key">W</span>
+                            <span class="control-action">Eject mass</span>
                         </div>
                     </div>
                 </div>
-                
-                <div class="login-container">
-                    <h2>Welcome to Paku.io</h2>
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="username">Enter your nickname</label>
-                            <input type="text" id="username" name="username" autofocus maxlength="15" placeholder="Nick">
-                        </div>
-                        <button type="submit" class="play-button">Play</button>
-                    </form>
-                </div>
-                
-                <div class="login-sidebar right-sidebar">
-                    <div class="sidebar-box rules-box">
-                        <h3>Rules</h3>
-                        <div class="rules-content">
-                            <p class="rule-item">• Move your cell with the mouse</p>
-                            <p class="rule-item">• Consume food dots to grow bigger</p>
-                            <p class="rule-item">• You can eat players smaller than you</p>
-                            <p class="rule-item">• Beware of larger players!</p>
-                        </div>
-                    </div>
-                    
-                    <div class="sidebar-box achievements-box">
-                        <h3>Achievements</h3>
-                        <div class="achievements-content">
-                            <div class="achievement-item">
-                                <span class="achievement-name">Hungry Beginner</span>
-                                <span class="achievement-desc">Eat 10 food items</span>
-                            </div>
-                            <div class="achievement-item">
-                                <span class="achievement-name">Predator</span>
-                                <span class="achievement-desc">Eat 5 players</span>
-                            </div>
-                            <div class="achievement-item">
-                                <span class="achievement-name">Survivor</span>
-                                <span class="achievement-desc">Live for 5 minutes</span>
-                            </div>
-                        </div>
+
+                <div class="sidebar-box credits-box">
+                    <h3>Credits</h3>
+                    <div class="credits-content">
+                        <p class="credit-item">Game Development: JSAÉ Team</p>
+                        <p class="credit-item">Inspiration: Agar.io & Pac-Man</p>
+                        <p class="credit-item">Version: 1.0.0</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="modalOverlay" style="display: none;">
-            <div id="modalContainer">
-                <div class="modal-header">
-                    <h2 id="modalTitle">Controls</h2>
-                    <button id="modalClose">&times;</button>
+            <div style="display: flex; flex-direction: column; gap: 20px">
+                <div class="login-container">
+                    <h2>Welcome to Paku.io</h2>
+                    <div class="form-toggle-buttons">
+                        <button type="button" id="showLoginForm" class="form-toggle-btn active">
+                            Login
+                        </button>
+                        <button type="button" id="showRegisterForm" class="form-toggle-btn">
+                            Register
+                        </button>
+                    </div>
+
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" id="loginUsername" name="username" required maxlength="15"
+                                placeholder="Username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" name="password" required placeholder="Password" />
+                        </div>
+                        <button type="submit" class="play-button">Login</button>
+                    </form>
+
+                    <form id="registerForm" class="auth-form" style="display: none">
+                        <div class="form-group">
+                            <label for="registerUsername">Username</label>
+                            <input type="text" id="registerUsername" name="username" required maxlength="15"
+                                placeholder="Username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" name="password" required
+                                placeholder="Password" />
+                        </div>
+                        <button type="submit" class="play-button">Register</button>
+                    </form>
                 </div>
-                <div id="modalContent">
+
+                <div class="login-container">
+                    <h2>Quick Play</h2>
+                    <form id="guestForm" class="auth-form" style="display: block">
+                        <div class="form-group">
+                            <label for="guestUsername">Enter your nickname</label>
+                            <input type="text" id="guestUsername" name="username" maxlength="15" placeholder="Nick" />
+                        </div>
+                        <button type="submit" class="play-button">Play as Guest</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="login-sidebar right-sidebar">
+                <div class="sidebar-box rules-box">
+                    <h3>Rules</h3>
+                    <div class="rules-content">
+                        <p class="rule-item">• Move your cell with the mouse</p>
+                        <p class="rule-item">• Consume food dots to grow bigger</p>
+                        <p class="rule-item">• You can eat players smaller than you</p>
+                        <p class="rule-item">• Beware of larger players!</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-box achievements-box">
+                    <h3>Achievements</h3>
+                    <div class="achievements-content">
+                        <div class="achievement-item">
+                            <span class="achievement-name">Hungry Beginner</span>
+                            <span class="achievement-desc">Eat 10 food items</span>
+                        </div>
+                        <div class="achievement-item">
+                            <span class="achievement-name">Predator</span>
+                            <span class="achievement-desc">Eat 5 players</span>
+                        </div>
+                        <div class="achievement-item">
+                            <span class="achievement-name">Survivor</span>
+                            <span class="achievement-desc">Live for 5 minutes</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="gameOver" style="display: none;">
-            <h1>Game Over</h1>
-            <div class="stats">
+        <div id="profileOverlay" style="display: none;">
+            <div class="profile-container">
+                <h2>Welcome back, <span id="profileUsername">Player</span> !</h2>
+                
+                <div class="profile-stats">
+                    <div class="stats-section">
+                        <h3>Game Records</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Highest Score:</span>
+                            <span id="profileHighScore">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Games Played:</span>
+                            <span id="profileGamesPlayed">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Longest Alive:</span>
+                            <span id="profileLongestTimeAlive">0</span> <span class="unit">seconds</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-section">
+                        <h3>Career Totals</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Players Eaten:</span>
+                            <span id="profilePlayersEaten">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Food Eaten:</span>
+                            <span id="profileFoodEaten">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Alive:</span>
+                            <span id="profileTotalTimeAlive">0</span> <span class="unit">seconds</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Score:</span>
+                            <span id="profileTotalScore">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button id="playButton" class="play-button">Play Game</button>
+                    <button id="logoutButton" class="logout-button">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modalOverlay" style="display: none;">
+        <div id="modalContainer">
+            <div class="modal-header">
+                <h2 id="modalTitle">Controls</h2>
+                <button id="modalClose">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="gameOver" style="display: none;">
+        <h1>Game Over</h1>
+        <div class="stats">
             <p>Player: <span class="gameOverUsername">Anonymous</span></p>
             <p>Score: <span class="gameOverScore">0</span></p>
             <p>High Score: <span class="gameOverHighScore">0</span></p>
             <p>Time Alive: <span class="gameOverTime">0</span> seconds</p>
             <p>Players Eaten: <span class="gameOverPeopleEaten">0</span></p>
             <p>Food Eaten: <span class="gameOverFoodEaten">0</span></p>
-            </div>
-            <button class="restartButton">Play Again</button>
         </div>
-        <canvas class="gameCanvas"></canvas>
-    </body>
+        <button class="restartButton">Play Again</button>
+    </div>
+    <canvas class="gameCanvas"></canvas>
+</body>
 </html>

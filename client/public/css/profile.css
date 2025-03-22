@@ -1,0 +1,92 @@
+.profile-container {
+    background-color: #000000;
+    border: 3px solid #2121FF;
+    border-radius: 10px;
+    padding: 25px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(33, 33, 255, 0.4);
+}
+
+.profile-container h2 {
+    color: #FFFF00;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.profile-stats {
+    background-color: #111;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.stats-section {
+    margin-bottom: 15px;
+}
+
+.stats-section h3 {
+    color: #FFFF00;
+    margin-bottom: 10px;
+    font-size: 18px;
+    border-bottom: 1px solid #2121FF;
+    padding-bottom: 8px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #ccc;
+    font-weight: bold;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.play-button {
+    background-color: #FFFF00;
+    color: #000;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.play-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+.logout-button {
+    background-color: transparent;
+    border: 2px solid #ff3333;
+    color: #ff3333;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.logout-button:hover {
+    transform: scale(1.05);
+    background-color: #ff3333;
+    color: #fff;
+}
