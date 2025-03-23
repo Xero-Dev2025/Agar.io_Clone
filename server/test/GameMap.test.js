@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, beforeEach, it } from 'node:test';
-import GameMap from './GameMap.js';
+import GameMap from '../GameMap.js'; 
 
 describe('GameMap', () => {
   it('should create a GameMap with positive dimensions', () => {

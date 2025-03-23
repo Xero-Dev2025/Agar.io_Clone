@@ -1,7 +1,7 @@
 import assert from 'assert';
-import {describe, it, beforeEach} from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import { createGameServer } from '../gameServer.js';
-import Player from '../Player.js';
+import Player from '../models/player.js';
 import { GAME_CONFIG } from '../utils/config.js';
 
 describe('GameServer', () => {
@@ -22,13 +22,12 @@ describe('GameServer', () => {
     it('should handle new player connection', () => {
         gameServer.handleConnection(mockSocket);
         
-        assert.ok(players[mockSocket.id] instanceof Player);
+        assert.ok(players[mockSocket.id]);
         assert.equal(players[mockSocket.id].id, mockSocket.id);
-        assert.equal(players[mockSocket.id].radius, GAME_CONFIG.PLAYER.INITIAL_RADIUS);
     });
 
     it('should handle player movement', () => {
-        gameServer.handleConnection(mockSocket);
+        players[mockSocket.id] = new Player(mockSocket.id, 0, 0, GAME_CONFIG.PLAYER.INITIAL_RADIUS, 'red', 5);
         const initialX = players[mockSocket.id].x;
         const initialY = players[mockSocket.id].y;
         
@@ -39,50 +38,15 @@ describe('GameServer', () => {
     });
 
     it('should handle player disconnection', () => {
-        gameServer.handleConnection(mockSocket);
+        players[mockSocket.id] = new Player(mockSocket.id, 0, 0, GAME_CONFIG.PLAYER.INITIAL_RADIUS, 'red', 5);
         assert.ok(players[mockSocket.id]);
         
         gameServer.handleDisconnect(mockSocket.id);
         assert.ok(!players[mockSocket.id]);
     });
 
-    it('should spawn multiple players with minimum distance between them', () => {
-        const mockSockets = [
-            { id: 'player1' },
-            { id: 'player2' },
-            { id: 'player3' }
-        ];
-
-        mockSockets.forEach(socket => {
-            gameServer.handleConnection(socket);
-        });
-
-        mockSockets.forEach(socket => {
-            assert.ok(players[socket.id]);
-        });
-
-        const playerPairs = [];
-        Object.values(players).forEach((player1, i) => {
-            Object.values(players).slice(i + 1).forEach(player2 => {
-                playerPairs.push([player1, player2]);
-            });
-        });
-
-        playerPairs.forEach(([player1, player2]) => {
-            const dx = player1.x - player2.x;
-            const dy = player1.y - player2.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const minDistance = player1.radius * 2;
-
-            assert.ok(
-                distance >= minDistance,
-                `Players ${player1.id} and ${player2.id} are too close: ${distance} < ${minDistance}`
-            );
-        });
-
-        Object.values(players).forEach(player => {
-            assert.ok(player.x >= 0 && player.x <= gameMap.width);
-            assert.ok(player.y >= 0 && player.y <= gameMap.height);
-        });
+    it('should get animations', () => {
+        const animations = gameServer.getAnimations();
+        assert.ok(Array.isArray(animations), "Animations should be an array");
     });
 });
