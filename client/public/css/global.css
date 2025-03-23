@@ -334,81 +334,12 @@ h1 em {
     }
 }
 
-#modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 200;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 0.3s ease;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-#modalContainer {
-    background-color: #000;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    border: 3px solid #2121FF;
-    border-radius: 10px;
-    box-shadow: 0 0 30px rgba(33, 33, 255, 0.7);
-    overflow: hidden;
-    animation: scaleIn 0.3s ease;
-}
-
 @keyframes scaleIn {
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
-}
-
-.modal-header {
-    background-color: #111;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #2121FF;
-}
-
-.modal-header h2 {
-    color: #FFFF00;
-    margin: 0;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
-}
-
-#modalClose {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 30px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 30px;
-    height: 30px;
-    width: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s;
-}
-
-#modalClose:hover {
-    color: #FFFF00;
-    text-shadow: 0 0 10px rgba(255, 255, 0, 0.6);
-}
-
-#modalContent {
-    padding: 25px;
-    overflow-y: auto;
-    max-height: calc(80vh - 62px); 
 }

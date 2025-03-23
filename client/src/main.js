@@ -1,5 +1,8 @@
 import { drawGame } from './render.js';
 import { setupNetworking } from './network.js';
+import { setupModals } from './modal.js';
+
+setupModals();
 
 const canvas = document.querySelector('.gameCanvas');
 const ctx = canvas.getContext('2d');

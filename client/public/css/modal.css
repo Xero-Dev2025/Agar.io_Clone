@@ -1,0 +1,304 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    backdrop-filter: blur(3px);
+  }
+  
+  #modalContainer {
+    background-color: #000000;
+    border: 3px solid #2121FF;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(33, 33, 255, 0.5);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #fff;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #000;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 2px solid #2121FF;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    color: #FFFF00;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.6);
+  }
+  
+  #modalClose {
+    background: none;
+    border: none;
+    color: #FFFF00;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  #modalClose:hover {
+    color: #FFD700;
+    transform: scale(1.2);
+  }
+  
+  #modalContent {
+    padding: 20px;
+    background-color: #000;
+  }
+  
+  .modal-section {
+    position: relative;
+    margin-bottom: 25px;
+    background-color: #111;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #2121FF; 
+  }
+  
+  .modal-section:last-child {
+    margin-bottom: 0;
+  }
+  
+  .modal-section h3 {
+    color: #FFFF00;
+    border-bottom: 1px solid #2121FF;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .modal-controls .control-detail {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #2121FF;
+  }
+  
+  .modal-controls .control-detail:last-child {
+    border-bottom: none;
+  }
+  
+  .control-key {
+    display: inline-block;
+    background-color: #2121FF;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .control-desc {
+    color: #ccc;
+    line-height: 1.5;
+  }
+  
+  .advanced-controls li,
+  .tips-list li,
+  .rules-list li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #fff;
+  }
+  
+  .credits-team {
+    margin-bottom: 20px;
+  }
+  
+  .team-member h4 {
+    color: #FFFF00;
+    margin-bottom: 5px;
+  }
+  
+  .inspiration-list {
+    color: #fff;
+    line-height: 1.5;
+  }
+  
+  .tech-stack .tech-item {
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  
+  .version-info {
+    font-style: italic;
+    color: #999;
+    text-align: right;
+    margin-top: 20px;
+  }
+  
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  
+  .achievement-card {
+    background-color: #111;
+    border: 1px solid #2121FF;
+    border-radius: 6px;
+    padding: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .achievement-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(33, 33, 255, 0.4);
+  }
+  
+  .achievement-title {
+    color: #FFFF00;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .achievement-desc {
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  
+  .achievement-reward {
+    color: #FFD700;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  
+  .achievement-card.legendary {
+    background: linear-gradient(135deg, #111 0%, #000 100%);
+    border: 1px solid #FFD700;
+  }
+  
+  .achievement-card.legendary .achievement-title {
+    color: #FFD700;
+  }
+  
+  .mechanics .mechanic-item {
+    margin-bottom: 20px;
+  }
+  
+  .mechanics h4 {
+    color: #FFFF00;
+    margin-bottom: 5px;
+  }
+  
+  .modal-footer {
+    padding: 15px 20px;
+    text-align: right;
+    background-color: #000;
+    border-top: 2px solid #2121FF;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  .modal-button {
+    background-color: #FFFF00;
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.2s ease;
+  }
+  
+  .modal-button:hover {
+    background-color: #FFD700;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.7);
+  }
+  
+  @keyframes pacmanGlow {
+    0% { box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 255, 0, 0.8); }
+    100% { box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); }
+  }
+  
+  .clickable-hint {
+    font-size: 0.7em;
+    opacity: 0.7;
+    font-weight: normal;
+  }
+  
+  .modal-section::before {
+    content: none;  
+  }
+  
+  @media (max-width: 768px) {
+    #modalContainer {
+      max-width: 95%;
+    }
+    
+    .achievements-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  #modalContainer::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  #modalContainer::-webkit-scrollbar-track {
+    background: #000000;
+    border-radius: 10px;
+  }
+  
+  #modalContainer::-webkit-scrollbar-thumb {
+    background-color: #2121FF;
+    border-radius: 10px;
+    border: 3px solid #000000;
+  }
+  
+  #modalContainer::-webkit-scrollbar-thumb:hover {
+    background-color: #FFFF00;
+  }
+
+  .modal-section h3::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-color: #FFFF00;
+    border-radius: 50%;
+    margin-right: 8px;
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+    animation: pacman-blink 1s infinite;
+  }
+  
+  @keyframes pacman-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @keyframes pacman-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 0, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 0, 0); }
+  }
+  
+  #modalContainer::-webkit-scrollbar-thumb:active {
+    background-color: #FFFF00;
+    animation: pacman-pulse 1s infinite;
+  }

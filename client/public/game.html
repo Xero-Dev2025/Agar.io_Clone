@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/global.css" />
     <link rel="stylesheet" href="css/auth-forms.css" />
     <link rel="stylesheet" href="css/profile.css" />
+    <link rel="stylesheet" href="css/modal.css" />
 
     <script src="build/main.bundle.js" defer></script>
 </head>
@@ -186,9 +187,12 @@
         <div id="modalContainer">
             <div class="modal-header">
                 <h2 id="modalTitle">Controls</h2>
-                <button id="modalClose">&times;</button>
+                <button id="modalClose" aria-label="Close modal">&times;</button>
             </div>
             <div id="modalContent"></div>
+            <div class="modal-footer">
+                <button id="modalCloseBtn" class="modal-button">Close</button>
+            </div>
         </div>
     </div>
 
