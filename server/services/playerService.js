@@ -25,27 +25,46 @@ export default class PlayerService {
       });
     }
     
+    const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF8000', '#8000FF', '#00FF80'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    
     players[socket.id] = new Player(
       socket.id, 
       x, 
       y, 
       this.gameConfig.PLAYER.INITIAL_RADIUS, 
-      'red', 
+      color, 
       5
     );
-  }
+}
 
-  handlePlayerMove(players, socketId, position, gameMap) {
-    const player = players[socketId];
+handlePlayerMove(players, socketId, position, gameMap) {
+  const player = players[socketId];
 
-    if (player) {
+  if (player) {
+      player.setTarget(position.x, position.y);
+      
       player.moveTowards(position.x, position.y);
+      
+      player.handleCellCollisions(false);
 
-      if (player.x - player.radius < 0) player.x = player.radius;
-      if (player.x + player.radius >= gameMap.width) player.x = gameMap.width - player.radius;
-      if (player.y - player.radius < 0) player.y = player.radius;
-      if (player.y + player.radius > gameMap.height) player.y = gameMap.height - player.radius;
+      player.mergeCheck();
+
+      player.cells.forEach(cell => {
+          if (cell.x - cell.radius < 0) cell.x = cell.radius;
+          if (cell.x + cell.radius >= gameMap.width) cell.x = gameMap.width - cell.radius;
+          if (cell.y - cell.radius < 0) cell.y = cell.radius;
+          if (cell.y + cell.radius > gameMap.height) cell.y = gameMap.height - cell.radius;
+      });
+  }
+}
+  
+  handlePlayerSplit(players, socketId) {
+    const player = players[socketId];
+    if (player) {
+      return player.split();
     }
+    return false;
   }
 
   handleDisconnect(players, socketId) {

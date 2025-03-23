@@ -13,18 +13,27 @@ export default class CollisionService {
     
     const player = players[playerId];
     const availableFoodItems = foodItems.filter(food => !food.isBeingConsumed);
+    const collidedFood = [];
     
-    return availableFoodItems.filter(food => {
-      const dx = player.x - food.x;
-      const dy = player.y - food.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      const overlapPercentage = calculateOverlapPercentage(
-        player.radius, food.radius, distance, food.radius
-      );
-      
-      return overlapPercentage >= this.OVERLAP_THRESHOLD;
+    player.cells.forEach(cell => {
+      availableFoodItems.forEach(food => {
+        if (collidedFood.includes(food)) return; // Éviter les doublons
+        
+        const dx = cell.x - food.x;
+        const dy = cell.y - food.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        const overlapPercentage = calculateOverlapPercentage(
+          cell.radius, food.radius, distance, food.radius
+        );
+        
+        if (overlapPercentage >= this.OVERLAP_THRESHOLD) {
+          collidedFood.push(food);
+        }
+      });
     });
+    
+    return collidedFood;
   }
 
   handleFoodCollision(players, playerId, food, consumingAnimations) {
@@ -35,76 +44,174 @@ export default class CollisionService {
     food.consumingPlayerId = playerId;
     
     player.incrementFoodEaten();
-
-    const animation = this.animationService.createFoodConsumptionAnimation(
-      food,
-      player,
-      this.gameConfig.ANIMATION.CONSUME_DURATION,
-      this.gameConfig.PLAYER.GROWTH_FACTOR
-    );
     
-    consumingAnimations.push(animation);
+    let closestCell = null;
+    let minDistance = Infinity;
+    
+    player.cells.forEach(cell => {
+      const dx = cell.x - food.x;
+      const dy = cell.y - food.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestCell = cell;
+      }
+    });
+    
+    if (closestCell) {
+      const animation = {
+        id: this.animationService._generateId(),
+        foodId: food.id,
+        playerId: player.id,
+        cellId: closestCell.id,
+        startTime: Date.now(),
+        duration: this.gameConfig.ANIMATION.CONSUME_DURATION || 300,
+        startPosition: { x: food.x, y: food.y },
+        targetPosition: { x: closestCell.x, y: closestCell.y },
+        initialFoodRadius: food.radius,
+        initialCellRadius: closestCell.radius,
+        targetCellRadius: closestCell.radius * this.gameConfig.PLAYER.GROWTH_FACTOR,
+        completed: false
+      };
+      
+      consumingAnimations.push(animation);
+    }
+    
+    player.updateScore();
   }
 
   detectPlayerCollisions(players, playerId) {
     if (!players[playerId]) return [];
     
     const player = players[playerId];
+    const collidingPlayers = [];
     
-    return Object.values(players).filter(p => p.id !== playerId).filter(p => {
-      const dx = player.x - p.x;
-      const dy = player.y - p.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    Object.values(players).forEach(otherPlayer => {
+      if (otherPlayer.id === playerId) return;
       
-      return distance < player.radius + p.radius;
-    });
-  }
+      console.log(`Vérification de collision entre ${playerId} et ${otherPlayer.id}`);
+      
+      let collision = false;
+      
+      for (let i = 0; i < player.cells.length && !collision; i++) {
+        const playerCell = player.cells[i];
+        
+        for (let j = 0; j < otherPlayer.cells.length && !collision; j++) {
+          const otherCell = otherPlayer.cells[j];
+          
+          const dx = playerCell.x - otherCell.x;
+          const dy = playerCell.y - otherCell.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          console.log(`  Distance: ${distance}, Rayon joueur: ${playerCell.radius}, Rayon autre: ${otherCell.radius}`);
+          
+          if (playerCell.radius > otherCell.radius * 1.25 && distance < playerCell.radius) {
+            console.log(`  Collision détectée: ${playerId} peut manger ${otherPlayer.id}`);
+            collision = true;
+            break;
+          } else if (otherCell.radius > playerCell.radius * 1.25 && distance < otherCell.radius) {
+            console.log(`  Collision détectée: ${otherPlayer.id} peut manger ${playerId}`);
+            collision = true;
+            break;
+          }
+        }
+      }
+      
+        if (collision) {
+            collidingPlayers.push(otherPlayer);
+        }
+        });
+        
+        return collidingPlayers;
+    }
 
-  handlePlayerCollision(players, playerId, otherPlayer, consumingAnimations) {
-    if (!players[playerId] || !players[otherPlayer.id]) return;
-    
-    const player = players[playerId];
-    const other = players[otherPlayer.id];
-  
-    const dx = player.x - other.x;
-    const dy = player.y - other.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    const playerIsLarger = player.radius / other.radius >= 1.3;
-    const otherIsLarger = other.radius / player.radius >= 1.3;
-    
-    if (!playerIsLarger && !otherIsLarger) {
-      return { player, other, action: 'pass' };
+    handlePlayerCollision(players, playerId, otherPlayerId, consumingAnimations) {
+        const otherId = typeof otherPlayerId === 'string' ? otherPlayerId : otherPlayerId.id;
+        
+        if (!players[playerId] || !players[otherId]) {
+            console.log(`Erreur: un joueur manquant - ${playerId} ou ${otherId}`);
+            return false;
+        }
+        
+        const player = players[playerId];
+        const other = players[otherId];
+        
+        console.log(`Gestion de la collision entre ${player.id} et ${other.id}`);
+        
+        let playerAteOther = false;
+        let otherAtePlayer = false;
+        
+        const playerCellsToRemove = [];
+        const otherCellsToRemove = [];
+        
+        player.cells.forEach(playerCell => {
+          other.cells.forEach(otherCell => {
+            const dx = playerCell.x - otherCell.x;
+            const dy = playerCell.y - otherCell.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (playerCell.radius > otherCell.radius * 1.25 && distance < playerCell.radius) {
+              playerAteOther = true;
+              
+              const areaEaten = Math.PI * otherCell.radius * otherCell.radius;
+              const currentArea = Math.PI * playerCell.radius * playerCell.radius;
+              const newArea = currentArea + areaEaten;
+              
+              playerCell.radius = Math.sqrt(newArea / Math.PI);
+              
+              otherCellsToRemove.push(otherCell.id);
+              
+              console.log(`Joueur ${player.id} mange une cellule de ${other.id}`);
+            }
+            else if (otherCell.radius > playerCell.radius * 1.25 && distance < otherCell.radius) {
+              otherAtePlayer = true;
+              
+              const areaEaten = Math.PI * playerCell.radius * playerCell.radius;
+              const currentArea = Math.PI * otherCell.radius * otherCell.radius;
+              const newArea = currentArea + areaEaten;
+              
+              otherCell.radius = Math.sqrt(newArea / Math.PI);
+              
+              playerCellsToRemove.push(playerCell.id);
+              
+              console.log(`Joueur ${other.id} mange une cellule de ${player.id}`);
+            }
+          });
+        });
+        
+        if (playerCellsToRemove.length > 0) {
+          player.cells = player.cells.filter(cell => !playerCellsToRemove.includes(cell.id));
+        }
+        
+        if (otherCellsToRemove.length > 0) {
+          other.cells = other.cells.filter(cell => !otherCellsToRemove.includes(cell.id));
+        }
+        
+        if (player.cells.length === 0) {
+          other.incrementPlayersEaten();
+          other.updateScore();
+          delete players[playerId];
+          return true;
+        }
+        
+        if (other.cells.length === 0) {
+          player.incrementPlayersEaten();
+          player.updateScore();
+          delete players[otherId];
+          return true;
+        }
+        
+        if (playerAteOther || otherAtePlayer) {
+          player.updateMainRadius();
+          other.updateMainRadius();
+          
+          player.updateScore();
+          other.updateScore();
+        }
+        
+        return playerAteOther || otherAtePlayer;
     }
-    
-    let smallerPlayer, largerPlayer;
-    if (playerIsLarger) {
-      largerPlayer = player;
-      smallerPlayer = other;
-    } else {
-      largerPlayer = other;
-      smallerPlayer = player;
-    }
-    
-    const smallerArea = Math.PI * smallerPlayer.radius * smallerPlayer.radius;
-    
-    const overlapPercentage = calculateOverlapPercentage(
-      largerPlayer.radius, 
-      smallerPlayer.radius, 
-      distance,
-      smallerArea
-    );
-    
-    if (playerIsLarger && overlapPercentage >= this.PLAYER_OVERLAP_THRESHOLD) {
-      return this._handlePlayerEatsPlayer(players, player, other, consumingAnimations);
-    }
-    else if (otherIsLarger && overlapPercentage >= this.PLAYER_OVERLAP_THRESHOLD) {
-      return this._handlePlayerEatsPlayer(players, other, player, consumingAnimations);
-    }
-    else {
-      return { player, other, action: 'pass' };
-    }
-  }
 
   _handlePlayerEatsPlayer(players, predator, prey, consumingAnimations) {
     const predatorArea = Math.PI * predator.radius * predator.radius;

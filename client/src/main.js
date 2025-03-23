@@ -34,7 +34,13 @@ canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
+});
 
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && socket) {
+        socket.emit('playerSplit');
+        event.preventDefault();
+    }
 });
 
 const { socket, animations } = setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas);

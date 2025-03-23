@@ -179,33 +179,36 @@ io.on('connection', (socket) => {
             players[socket.id].updateStats();
         }
         
-        const collisionsFood = gameServer.detectFoodCollisions(socket.id);
-        
         const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
+        
+        if (collisionsPlayers.length > 0) {
+            console.log(`${socket.id} a des collisions avec ${collisionsPlayers.length} joueurs`);
+            
+            collisionsPlayers.forEach(otherPlayer => {
+                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id); // S'assurer que c'est l'ID qui est passé
+                
+                if (result) {
+                    console.log(`Résultat de la collision: ${JSON.stringify(result)}`);
+                    
+                    if (!players[socket.id]) {
+                        socket.emit('playerEaten', players[otherPlayer.id]?.stats || {});
+                    }
+                    
+                    io.emit('gameState', { 
+                        players: players, 
+                        foodItems: foodItems,
+                        animations: gameServer.getAnimations()
+                    });
+                }
+            });
+        }
+        
+        const collisionsFood = gameServer.detectFoodCollisions(socket.id);
         
         if (collisionsFood.length > 0) {
             collisionsFood.forEach(food => {
                 gameServer.handleFoodCollision(socket.id, food);
             });
-        }
-        
-        if (collisionsPlayers.length > 0) {
-            collisionsPlayers.forEach(otherPlayer => {
-                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer);
-                
-                if (result && result.action === 'consume') {
-                    // console.log(`Joueur ${result.predator.id} a mangé ${result.prey.id}`);
-                    // console.log(`Statistiques du prédateur:`, result.predator.stats);
-                    
-                    io.to(result.prey.id).emit('playerEaten', result.prey.stats || {});
-                }
-            });
-        }
-        
-        if (Math.random() < 0.01) { 
-            /*console.log(`Statistiques des joueurs:`, Object.fromEntries(
-                Object.entries(players).map(([id, p]) => [id, p.stats])
-            ));*/
         }
         
         io.emit('gameState', { 
@@ -234,6 +237,20 @@ io.on('connection', (socket) => {
             username: username,
             stats: userStats || {}
         });
+    });
+
+    socket.on('playerSplit', () => {
+        if (players[socket.id]) {
+            const didSplit = gameServer.handlePlayerSplit(socket.id);
+            if (didSplit) {
+                io.emit('gameState', { 
+                    players: players, 
+                    foodItems: foodItems,
+                    animations: gameServer.getAnimations(),
+                    gameMap: gameMap
+                });
+            }
+        }
     });
 
     socket.on('disconnect', () => {

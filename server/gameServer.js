@@ -34,6 +34,10 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       playerService.handlePlayerMove(players, socketId, position, gameMap);
     },
     
+    handlePlayerSplit(socketId) {
+      return playerService.handlePlayerSplit(players, socketId);
+    },
+    
     handleDisconnect(socketId) {
       playerService.handleDisconnect(players, socketId);
       
@@ -68,7 +72,6 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       return collisionService.handlePlayerCollision(players, playerId, otherPlayer, consumingAnimations);
     },
     
-
     updateAnimations() {
       return animationService.updateAnimations(consumingAnimations, players, foodItems);
     },

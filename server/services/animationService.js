@@ -1,20 +1,39 @@
 export default class AnimationService {
 
     createFoodConsumptionAnimation(food, player, duration, growthFactor) {
-      return {
-        id: this._generateId(),
-        foodId: food.id,
-        playerId: player.id,
-        startTime: Date.now(),
-        duration: duration || 300,
-        startPosition: { x: food.x, y: food.y },
-        targetPosition: { x: player.x, y: player.y },
-        initialFoodRadius: food.radius,
-        initialPlayerRadius: player.radius,
-        targetPlayerRadius: player.radius * growthFactor,
-        completed: false
-      };
-    }
+        let closestCell = null;
+        let minDistance = Infinity;
+        
+        player.cells.forEach(cell => {
+          const dx = cell.x - food.x;
+          const dy = cell.y - food.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestCell = cell;
+          }
+        });
+        
+        if (!closestCell) {
+          closestCell = player.cells[0]; 
+        }
+        
+        return {
+          id: this._generateId(),
+          foodId: food.id,
+          playerId: player.id,
+          cellId: closestCell.id,
+          startTime: Date.now(),
+          duration: duration || 300,
+          startPosition: { x: food.x, y: food.y },
+          targetPosition: { x: closestCell.x, y: closestCell.y },
+          initialFoodRadius: food.radius,
+          initialCellRadius: closestCell.radius,
+          targetCellRadius: closestCell.radius * growthFactor,
+          completed: false
+        };
+      }
 
     createPlayerConsumptionAnimation(predator, prey, duration, eatenPlayerStats) {
       return {
@@ -32,60 +51,74 @@ export default class AnimationService {
     }
 
     updateAnimations(consumingAnimations, players, foodItems) {
-      const now = Date.now();
-      const completedAnimations = [];
-      
-      consumingAnimations.forEach(animation => {
-        const elapsed = now - animation.startTime;
-        const progress = Math.min(1, elapsed / animation.duration);
+        const now = Date.now();
+        const completedAnimations = [];
         
-        if (animation.eatenPlayerId) {
-          const predator = players[animation.playerId];
+        consumingAnimations.forEach(animation => {
+          const elapsed = now - animation.startTime;
+          const progress = Math.min(1, elapsed / animation.duration);
           
-          if (predator) {
-            if (progress >= 1) {
+          if (animation.eatenPlayerId) {
+            const predator = players[animation.playerId];
+            
+            if (predator) {
+              if (progress >= 1) {
+                animation.completed = true;
+                completedAnimations.push(animation);
+              }
+            } else {
+              animation.completed = true;
+              completedAnimations.push(animation);
+            }
+            return;
+          }
+      
+          if (progress < 1) {
+            const food = foodItems.find(f => f.id === animation.foodId);
+            const player = players[animation.playerId];
+            
+            if (food && player) {
+              const cell = player.cells.find(c => c.id === animation.cellId);
+              
+              if (cell) {
+                food.x = animation.startPosition.x + (cell.x - animation.startPosition.x) * progress;
+                food.y = animation.startPosition.y + (cell.y - animation.startPosition.y) * progress;
+                food.radius = animation.initialFoodRadius * (1 - progress);
+                
+                cell.radius = animation.initialCellRadius + (animation.targetCellRadius - animation.initialCellRadius) * progress;
+              } else {
+                animation.completed = true;
+                completedAnimations.push(animation);
+              }
+            } else {
               animation.completed = true;
               completedAnimations.push(animation);
             }
           } else {
             animation.completed = true;
             completedAnimations.push(animation);
-          }
-          return;
-        }
-    
-        if (progress < 1) {
-          const food = foodItems.find(f => f.id === animation.foodId);
-          const player = players[animation.playerId];
-          
-          if (food && player) {
-            food.x = animation.startPosition.x + (player.x - animation.startPosition.x) * progress;
-            food.y = animation.startPosition.y + (player.y - animation.startPosition.y) * progress;
             
-            food.radius = animation.initialFoodRadius * (1 - progress);
-            
-            player.radius = animation.initialPlayerRadius + 
-                           (animation.targetPlayerRadius - animation.initialPlayerRadius) * progress;
+            const player = players[animation.playerId];
+            if (player && animation.foodId) {
+              const cell = player.cells.find(c => c.id === animation.cellId);
+              if (cell) {
+                cell.radius = animation.targetCellRadius;
+              }
+              
+              player.updateMainRadius();
+              player.updateScore();
+            }
           }
-        } else {
-          animation.completed = true;
-          completedAnimations.push(animation);
-          
-          const player = players[animation.playerId];
-          if (player && animation.foodId) {  
-            player.radius = animation.targetPlayerRadius;
-          }
-        }
-      });
-      
-      this._cleanupCompletedAnimations(completedAnimations, consumingAnimations, foodItems);
-      
-      return {
-        players,
-        foodItems,
-        animations: consumingAnimations
-      };
-    }
+        });
+        
+        this._cleanupCompletedAnimations(completedAnimations, consumingAnimations, foodItems);
+        
+        return {
+          players,
+          foodItems,
+          animations: consumingAnimations
+        };
+      }
   
     _cleanupCompletedAnimations(completedAnimations, consumingAnimations, foodItems) {
       completedAnimations.forEach(animation => {

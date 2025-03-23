@@ -68,31 +68,74 @@ function drawFoodItems(ctx, foodItems) {
 }
 
 function drawMainPlayer(ctx, player, mouse) {
-  const screenPos = worldToScreenCoordinates(player.x, player.y);
-
-  ctx.beginPath();
-  ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
-  ctx.fillStyle = player.color;
-  ctx.fill();
-  ctx.closePath();
-  
-  // Dessiner le nom du joueur
-  drawPlayerName(ctx, player);
+  if (player.cells && player.cells.length > 0) {
+    player.cells.forEach(cell => {
+      ctx.beginPath();
+      ctx.arc(cell.x, cell.y, cell.radius, 0, Math.PI * 2);
+      ctx.fillStyle = player.color || '#FF0000'; 
+      ctx.fill();
+      ctx.closePath();
+    });
+    
+    if (player.username && player.cells.length > 0) {
+      const fontSize = Math.max(12, Math.min(20, player.radius / 3));
+      ctx.font = `bold ${fontSize}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#FFFFFF";
+      
+      player.cells.forEach(cell => {
+        ctx.fillText(player.username, cell.x, cell.y);
+      });
+    }
+  } else {
+    const screenPos = worldToScreenCoordinates(player.x, player.y);
+    ctx.beginPath();
+    ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
+    ctx.fillStyle = player.color || '#FF0000';
+    ctx.fill();
+    ctx.closePath();
+    
+    drawPlayerName(ctx, player);
+  }
 }
 
 function drawOtherPlayers(ctx, allPlayers, socketId) {
   Object.keys(allPlayers).forEach(id => {
     if (id !== socketId) {
       const otherPlayer = allPlayers[id];
+      
       if (otherPlayer) {
-        ctx.beginPath();
-        ctx.arc(otherPlayer.x, otherPlayer.y, otherPlayer.radius || 30, 0, Math.PI * 2);
-        ctx.fillStyle = 'blue';
-        ctx.fill();
-        ctx.closePath();
         
-        // Dessiner le nom du joueur
-        drawPlayerName(ctx, otherPlayer);
+        if (otherPlayer.cells && otherPlayer.cells.length > 0) {
+          otherPlayer.cells.forEach(cell => {
+            ctx.beginPath();
+            ctx.arc(cell.x, cell.y, cell.radius, 0, Math.PI * 2);
+            ctx.fillStyle = otherPlayer.color || '#0000FF'; 
+            ctx.fill();
+            ctx.closePath();
+          });
+          
+          if (otherPlayer.username && otherPlayer.cells.length > 0) {
+            const fontSize = Math.max(12, Math.min(20, otherPlayer.radius / 3));
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#FFFFFF";
+            
+            otherPlayer.cells.forEach(cell => {
+              ctx.fillText(otherPlayer.username, cell.x, cell.y);
+            });
+          }
+        } else {
+          ctx.beginPath();
+          ctx.arc(otherPlayer.x, otherPlayer.y, otherPlayer.radius || 30, 0, Math.PI * 2);
+          ctx.fillStyle = otherPlayer.color || '#0000FF';
+          ctx.fill();
+          ctx.closePath();
+          
+          drawPlayerName(ctx, otherPlayer);
+        }
       }
     }
   });
