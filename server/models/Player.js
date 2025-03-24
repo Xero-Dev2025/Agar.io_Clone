@@ -1,6 +1,6 @@
 export default class Player {
     id;
-    cells = []; // Tableau pour stocker les cellules du joueur
+    cells = []; 
     color;
     speed;
     stats;
@@ -37,16 +37,17 @@ export default class Player {
         };
     }
 
-    moveTowards(targetX, targetY) {
+	moveTowards(targetX, targetY, speedMultiplier = 1) {
 		this.cells.forEach((cell, index) => {
 			const dx = targetX - cell.x;
 			const dy = targetY - cell.y;
 			const distance = Math.sqrt(dx * dx + dy * dy);
 			
+
+			const cellSpeedFactor = Math.max(0.3, 35 / cell.radius);
+			const adjustedSpeed = this.speed * cellSpeedFactor * speedMultiplier;
+			
 			if (distance > 0) {
-				const speedFactor = Math.max(0.3, 50 / cell.radius);
-				const adjustedSpeed = this.speed * speedFactor;
-				
 				if (distance > adjustedSpeed) {
 					cell.x += (dx / distance) * adjustedSpeed;
 					cell.y += (dy / distance) * adjustedSpeed;

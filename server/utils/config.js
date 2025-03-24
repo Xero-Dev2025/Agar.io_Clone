@@ -16,6 +16,7 @@ export const GAME_CONFIG = {
       SPAWN_INTERVAL: 2000, 
       SPAWN_COUNT: 20
     },
+    
     ANIMATION: {
       CONSUME_DURATION: 300, 
       GROWTH_DURATION: 300   
@@ -24,5 +25,11 @@ export const GAME_CONFIG = {
     SCORE: {
       FOOD_VALUE: 10,
       PLAYER_VALUE: 100
-    }
+    },
+
+    BOT: {
+      SPEED_MULTIPLIER: 1,  
+      DECISION_INTERVAL: 300,  
+      MOVE_INTERVAL: 16       
+    },
 };

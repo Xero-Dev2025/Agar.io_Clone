@@ -4,13 +4,15 @@ import FoodService from './services/foodService.js';
 import PlayerService from './services/playerService.js';
 import AnimationService from './services/animationService.js';
 import CollisionService from './services/collisionsService.js';
+import BotService from './services/botService.js';
 
 export function createGameServer(players = {}, foodItems = [], gameMap) {
   const animationService = new AnimationService();
   const foodService = new FoodService(GAME_CONFIG);
   const playerService = new PlayerService(GAME_CONFIG);
   const collisionService = new CollisionService(GAME_CONFIG, animationService);
-  
+  const botService = new BotService(GAME_CONFIG, playerService);
+
   const consumingAnimations = [];
   
   return {
@@ -69,7 +71,12 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
     },
     
     handlePlayerCollision(playerId, otherPlayer) {
-      return collisionService.handlePlayerCollision(players, playerId, otherPlayer, consumingAnimations);
+      const result = collisionService.handlePlayerCollision(players, playerId, otherPlayer, consumingAnimations);
+      if (result && players[otherPlayer]?.isBot && !players[otherPlayer]) {
+        setTimeout(() => this.respawnBot(), 5000);
+      }
+    
+      return result;
     },
     
     updateAnimations() {
@@ -82,6 +89,46 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
     
     updateAllPlayerStats() {
       playerService.updateAllPlayerStats(players);
+    },
+    initializeBots(count = 5) {
+      return botService.initializeBots(players, foodItems, gameMap, count);
+    },
+    
+    updateBots() {
+      botService.updateBots(players, foodItems, gameMap);
+    },
+    
+    respawnBot() {
+      botService.respawnBot(players, gameMap);
+    },
+    getBotIds() {
+      return botService.botIds;
+    },
+  
+    updateSpecificBots(botIds) {
+      botService.updateSpecificBots(botIds, players, foodItems, gameMap);
+      
+      botIds.forEach(botId => {
+        if (players[botId]) {
+          const collidedFood = collisionService.detectFoodCollisions(players, botId, foodItems);
+          if (collidedFood.length > 0) {
+            collidedFood.forEach(food => {
+              collisionService.handleFoodCollision(players, botId, food, consumingAnimations);
+            });
+          }
+          
+          const collidingPlayers = collisionService.detectPlayerCollisions(players, botId);
+          if (collidingPlayers.length > 0) {
+            collidingPlayers.forEach(otherPlayer => {
+              const result = collisionService.handlePlayerCollision(players, botId, otherPlayer.id, consumingAnimations);
+              
+              if (result && !players[botId]) {
+                setTimeout(() => this.respawnBot(), 5000);
+              }
+            });
+          }
+        }
+      });
     }
   };
 }

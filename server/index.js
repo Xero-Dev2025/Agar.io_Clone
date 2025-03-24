@@ -9,7 +9,7 @@ import { GAME_CONFIG } from './utils/config.js';
 import auth from './auth.js';
 
 dotenv.config();
-
+const BOT_COUNT = 5;
 const players = {}; 
 const foodItems = [];
 const gameMap = {
@@ -36,7 +36,21 @@ app.get('/paku', (req, res) => {
 const gameServer = createGameServer(players, foodItems, gameMap);
 gameServer.initalizeGameMap(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
-// console.log(`Boules alimentaires initialisées: ${foodItems.length}`);
+gameServer.initializeBots(BOT_COUNT);
+
+const BOT_UPDATE_INTERVAL = 16;
+const BOT_TOTAL_UPDATE = 100; 
+
+let botUpdateIndex = 0;
+
+setInterval(() => {
+    const botIds = gameServer.getBotIds();
+    if (botIds.length === 0) return;
+    
+    gameServer.updateSpecificBots(botIds);
+}, BOT_UPDATE_INTERVAL);
+
+
 
 function startFoodSpawning() {
     setInterval(() => {
@@ -52,7 +66,6 @@ function startFoodSpawning() {
                     GAME_CONFIG.WIDTH, 
                     GAME_CONFIG.HEIGHT
                 );
-                // console.log(`${newFood} nouvelles boules alimentaires générées (total: ${foodItems.length})`);
                 
                 if (Object.keys(players).length > 0) {
                     io.emit('gameState', { 
@@ -106,7 +119,6 @@ startFoodSpawning();
 startAnimationUpdates();
 
 io.on('connection', (socket) => {
-    console.log('Nouveau joueur connecté:', socket.id);
     
     gameServer.handleConnection(socket);
     
@@ -118,11 +130,9 @@ io.on('connection', (socket) => {
     });
     
     socket.on('login', (data, callback) => {
-        console.log(`Tentative de connexion pour: ${data.username}`);
         const result = auth.authenticateUser(data.username, data.password);
         
         if (result.success) {
-            console.log(`Connexion réussie pour: ${data.username}`);
             const userStats = auth.getUserStats(data.username);
             result.stats = userStats;
             
@@ -130,9 +140,7 @@ io.on('connection', (socket) => {
                 username: data.username,
                 authenticated: true
             };
-            console.log(`Session créée pour l'utilisateur: ${data.username}`);
         } else {
-            console.log(`Échec de connexion pour: ${data.username}`);
         }
         
         callback(result);
@@ -146,14 +154,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('register', (data, callback) => {
-        console.log(`Tentative d'inscription pour: ${data.username}`);
         const result = auth.registerUser(data.username, data.password);
-        
-        if (result.success) {
-            console.log(`Inscription réussie pour: ${data.username}`);
-        } else {
-            console.log(`Échec d'inscription pour: ${data.username} - ${result.message}`);
-        }
         
         callback(result);
     });
@@ -161,7 +162,6 @@ io.on('connection', (socket) => {
     socket.on('setUsername', (username) => {
         if (players[socket.id] && username) {
             players[socket.id].setUsername(username);
-            console.log(`Joueur ${socket.id} a pour pseudo : ${username}`);
             
             io.emit('gameState', { 
                 players: players, 
@@ -182,13 +182,22 @@ io.on('connection', (socket) => {
         const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
         
         if (collisionsPlayers.length > 0) {
+<<<<<<< HEAD
             // console.log(`${socket.id} a des collisions avec ${collisionsPlayers.length} joueurs`);
+=======
+>>>>>>> Bot
             
             collisionsPlayers.forEach(otherPlayer => {
-                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id); // S'assurer que c'est l'ID qui est passé
-                
+                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id);
                 if (result) {
+<<<<<<< HEAD
                     // console.log(`Résultat de la collision: ${JSON.stringify(result)}`);
+=======
+                    
+                    if (!players[socket.id]) {
+                        socket.emit('playerEaten', players[otherPlayer.id]?.stats || {});
+                    }
+>>>>>>> Bot
                     
                     io.emit('gameState', { 
                         players: players, 
@@ -214,6 +223,29 @@ io.on('connection', (socket) => {
         });
     });
 
+<<<<<<< HEAD
+=======
+    socket.on('playerEaten', (data) => {
+        if (data.isBot) {
+            setTimeout(() => gameServer.respawnBot(), 5000);
+        }
+        if (socket.user && socket.user.authenticated) {
+            const username = socket.user.username;
+            const stats = data;
+            auth.updateUserStats(username, stats);
+        } else {
+        }
+    });
+
+    socket.on('getPlayerStats', (username) => {
+        const userStats = auth.getUserStats(username);
+        
+        socket.emit('playerStats', {
+            username: username,
+            stats: userStats || {}
+        });
+    });
+>>>>>>> Bot
 
     socket.on('playerSplit', () => {
         if (players[socket.id]) {
@@ -230,7 +262,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('Joueur déconnecté:', socket.id);
         gameServer.handleDisconnect(socket.id);
         
         io.emit('gameState', { 

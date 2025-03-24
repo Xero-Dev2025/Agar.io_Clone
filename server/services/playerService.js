@@ -38,26 +38,26 @@ export default class PlayerService {
     );
 }
 
-handlePlayerMove(players, socketId, position, gameMap) {
-  const player = players[socketId];
-
-  if (player) {
-      player.setTarget(position.x, position.y);
-      
-      player.moveTowards(position.x, position.y);
-      
-      player.handleCellCollisions(false);
-
-      player.mergeCheck();
-
-      player.cells.forEach(cell => {
-          if (cell.x - cell.radius < 0) cell.x = cell.radius;
-          if (cell.x + cell.radius >= gameMap.width) cell.x = gameMap.width - cell.radius;
-          if (cell.y - cell.radius < 0) cell.y = cell.radius;
-          if (cell.y + cell.radius > gameMap.height) cell.y = gameMap.height - cell.radius;
-      });
+  handlePlayerMove(players, socketId, position, gameMap) {
+    const player = players[socketId];
+    if (!player) return;
+    
+    const isBot = player.isBot === true;
+    const speedMultiplier = isBot ? 1.0 : 1.0; 
+    
+    player.setTarget(position.x, position.y);
+    player.moveTowards(position.x, position.y, speedMultiplier);
+    
+    player.handleCellCollisions(false);
+    player.mergeCheck();
+    
+    player.cells.forEach(cell => {
+      if (cell.x - cell.radius < 0) cell.x = cell.radius;
+      if (cell.x + cell.radius >= gameMap.width) cell.x = gameMap.width - cell.radius;
+      if (cell.y - cell.radius < 0) cell.y = cell.radius;
+      if (cell.y + cell.radius > gameMap.height) cell.y = gameMap.height - cell.radius;
+    });
   }
-}
   
   handlePlayerSplit(players, socketId) {
     const player = players[socketId];
