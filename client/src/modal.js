@@ -144,7 +144,7 @@ export function setupModals() {
             <p>Made by :</p>
             <ul class="inspiration-list">
                 <li><strong>Antoine Domisse</strong</li>
-                <li><strong>Atilla Tas</strong></li>
+                <li><strong>Atilla Tas, Groupe I, PoA, Final Fantasy</strong></li>
                 <li><strong>Kellian Mirez</strong></li>
             </ul>
           </div>
