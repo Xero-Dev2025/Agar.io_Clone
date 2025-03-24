@@ -73,7 +73,9 @@ function drawFoodItems(ctx, foodItems) {
   }
 }
 
-function drawMainPlayer(ctx, player, mouse) {
+function drawMainPlayer(ctx, player) {
+  console.log("Main player avatar:", player.avatar); 
+  
   if (player.cells && player.cells.length > 0) {
     player.cells.forEach(cell => {
       ctx.beginPath();
@@ -81,6 +83,13 @@ function drawMainPlayer(ctx, player, mouse) {
       ctx.fillStyle = player.color || '#FF0000'; 
       ctx.fill();
       ctx.closePath();
+      
+      if (player.avatar && player.avatar !== 'default') {
+        const avatarImg = loadAvatar(player.avatar);
+        if (avatarImg.complete) {
+          drawCircularAvatar(ctx, avatarImg, cell.x, cell.y, cell.radius * 0.8);
+        }
+      }
     });
     
     if (player.username && player.cells.length > 0) {
@@ -96,11 +105,19 @@ function drawMainPlayer(ctx, player, mouse) {
     }
   } else {
     const screenPos = worldToScreenCoordinates(player.x, player.y);
+    
     ctx.beginPath();
     ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
     ctx.fillStyle = player.color || '#FF0000';
     ctx.fill();
     ctx.closePath();
+    
+    if (player.avatar && player.avatar !== 'default') {
+      const avatarImg = loadAvatar(player.avatar);
+      if (avatarImg.complete) {
+        drawCircularAvatar(ctx, avatarImg, screenPos.x, screenPos.y, player.radius * 0.8);
+      }
+    }
     
     drawPlayerName(ctx, player);
   }
@@ -112,6 +129,7 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
       const otherPlayer = allPlayers[id];
       
       if (otherPlayer) {
+        console.log("Other player avatar:", id, otherPlayer.avatar); // Ajout pour déboguer
         
         if (otherPlayer.cells && otherPlayer.cells.length > 0) {
           otherPlayer.cells.forEach(cell => {
@@ -120,6 +138,13 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
             ctx.fillStyle = otherPlayer.color || '#0000FF'; 
             ctx.fill();
             ctx.closePath();
+            
+            if (otherPlayer.avatar && otherPlayer.avatar !== 'default') {
+              const avatarImg = loadAvatar(otherPlayer.avatar);
+              if (avatarImg.complete) {
+                drawCircularAvatar(ctx, avatarImg, cell.x, cell.y, cell.radius * 0.8);
+              }
+            }
           });
           
           if (otherPlayer.username && otherPlayer.cells.length > 0) {
@@ -140,6 +165,13 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
           ctx.fill();
           ctx.closePath();
           
+          if (otherPlayer.avatar && otherPlayer.avatar !== 'default') {
+            const avatarImg = loadAvatar(otherPlayer.avatar);
+            if (avatarImg.complete) {
+              drawCircularAvatar(ctx, avatarImg, otherPlayer.x, otherPlayer.y, (otherPlayer.radius || 30) * 0.8);
+            }
+          }
+          
           drawPlayerName(ctx, otherPlayer);
         }
       }
@@ -147,6 +179,44 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
   });
 }
 
+const avatarCache = {};
+
+function loadAvatar(avatarName) {
+  if (!avatarCache[avatarName]) {
+    const img = new Image();
+    if (avatarName === 'cool') {
+      img.src = './images/avatars/cool.png'; 
+    } else if (avatarName === 'ninja') {
+      img.src = './images/avatars/ninja.png';
+    } else {
+      img.src = '/images/avatars/default.png';
+    }
+    avatarCache[avatarName] = img;
+    
+    img.onload = () => {
+      console.log(`Avatar ${avatarName} loaded successfully`);
+    };
+    
+    img.onerror = () => {
+      console.error(`Failed to load avatar ${avatarName}`);
+    };
+  }
+  return avatarCache[avatarName];
+}
+
+function drawCircularAvatar(ctx, img, x, y, radius) {
+  if (!img.complete) return; 
+  
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+  ctx.closePath();
+  ctx.clip();
+  
+  ctx.drawImage(img, x - radius, y - radius, radius * 2, radius * 2);
+  
+  ctx.restore();
+}
 
 function drawPlayerName(ctx, player) {
   if (!player.username) return;

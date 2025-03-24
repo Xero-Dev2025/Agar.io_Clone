@@ -8,12 +8,13 @@ export default class Player {
     creationTime;
     username;
 
-    constructor(id, x, y, radius, color, speed, username = 'Anonymous') {
-        this.id = id;
-        this.color = color;
-        this.speed = speed;
-        this.username = username;
-        this.creationTime = Date.now();
+	constructor(id, x, y, radius, color, speed, username = 'Anonymous', avatar = 'default') {
+		this.id = id;
+		this.color = color;
+		this.speed = speed;
+		this.username = username;
+		this.avatar = avatar; 
+		this.creationTime = Date.now();
         
         this.cells.push({
             id: `${id}_0`,
@@ -336,5 +337,9 @@ export default class Player {
 		}
 		
 		return ejectedMasses;
+	}
+	
+	setAvatar(avatar) {
+		this.avatar = avatar;
 	}
 }

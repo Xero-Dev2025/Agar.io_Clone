@@ -262,5 +262,9 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
     getEjectedMasses() {
       return ejectedMasses;
     },
+
+    handlePlayerSetAvatar(socketId, avatar) {
+      return playerService.handlePlayerSetAvatar(players, socketId, avatar);
+    }
   };
 }

@@ -89,4 +89,13 @@ export default class PlayerService {
     
     return false;
   }
+
+  handlePlayerSetAvatar(players, socketId, avatar) {
+    const player = players[socketId];
+    if (player) {
+        player.setAvatar(avatar);
+        return true;
+    }
+    return false;
+}
 }
