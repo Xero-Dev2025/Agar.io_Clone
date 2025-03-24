@@ -151,6 +151,7 @@ io.on('connection', (socket) => {
         if (result.success) {
             const userStats = auth.getUserStats(data.username);
             result.stats = userStats;
+            result.username = data.username;
             
             socket.user = {
                 username: data.username,
@@ -185,6 +186,32 @@ io.on('connection', (socket) => {
                 animations: gameServer.getAnimations(),
                 gameMap: gameMap
             });
+        }
+    });
+    
+    socket.on('getPlayerStats', (username, callback) => {
+        if (username) {
+            const userStats = auth.getUserStats(username);
+            console.log(`Statistiques demandées pour le joueur : ${username}`);
+            callback(userStats);
+        } else {
+            callback(null);
+        }
+    });
+    
+    socket.on('gameOver', (data) => {
+        if (data.username && data.stats) {
+            const username = data.username;
+            const gameStats = data.stats;
+            
+            console.log(`Partie terminée pour ${username} avec un score de : ${gameStats.score}`);
+            
+            if (socket.user && socket.user.authenticated) {
+                auth.updateUserStats(username, gameStats);
+                console.log(`Statistiques enregistrées pour l'utilisateur authentifié: ${username}`);
+            } else {
+                console.log(`Partie terminée pour le joueur invité ${username} - statistiques non sauvegardées`);
+            }
         }
     });
     
@@ -238,12 +265,6 @@ io.on('connection', (socket) => {
     socket.on('playerEaten', (data) => {
         if (data.isBot) {
             setTimeout(() => gameServer.respawnBot(), 5000);
-        }
-        if (socket.user && socket.user.authenticated) {
-            const username = socket.user.username;
-            const stats = data;
-            auth.updateUserStats(username, stats);
-        } else {
         }
     });
 
