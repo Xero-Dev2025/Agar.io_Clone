@@ -1,93 +1,153 @@
-# equipe-4
+# Paku.io - Jeu Multijoueur en Temps Réel
 
+Paku.io est un jeu multijoueur en temps réel inspiré par Agar.io. Les joueurs contrôlent des cellules qui grandissent en consommant de la nourriture et d'autres joueurs dans une carte de 11000 par 11000 pixels.
 
+## Diagrammes de séquence
 
-## Getting started
+### Connexion et initialisation du jeu
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Serveur
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+    Client->>+Serveur: Connexion WebSocket
+    Serveur->>Serveur: Initialisation de la carte et de la nourriture
+    Serveur->>Serveur: Création des bots
+    Serveur->>-Client: État initial du jeu (joueurs, nourriture, carte)
+    
+    Client->>+Serveur: setUsername(nom)
+    Serveur->>Serveur: Affectation du nom au joueur
+    Serveur->>-Client: Mise à jour de l'état du jeu
+    
+    Note over Client,Serveur: Début de la partie
 ```
-cd existing_repo
-git remote add origin https://gitlab.univ-lille.fr/jsae/projets-2024-2025/groupe-i/equipe-4.git
-git branch -M main
-git push -uf origin main
+
+### Déplacement et interactions
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Serveur
+    
+    loop Chaque frame
+        Client->>+Serveur: playerMove(position)
+        Serveur->>Serveur: Mise à jour de la position du joueur
+        Serveur->>Serveur: Détection des collisions
+        
+        alt Collision avec de la nourriture
+            Serveur->>Serveur: handleFoodCollision()
+            Serveur->>Serveur: Création d'animation de consommation
+        end
+        
+        alt Collision avec un autre joueur
+            Serveur->>Serveur: handlePlayerCollision()
+            Serveur->>Serveur: Le plus grand mange le plus petit
+        end
+        
+        Serveur->>-Client: Mise à jour du gameState
+    end
 ```
 
-## Integrate with your tools
+### Mécaniques de jeu spéciales
 
-- [ ] [Set up project integrations](https://gitlab.univ-lille.fr/jsae/projets-2024-2025/groupe-i/equipe-4/-/settings/integrations)
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Serveur
+    
+    Client->>+Serveur: playerSplit() (touche Espace)
+    Serveur->>Serveur: Diviser la cellule du joueur
+    Serveur->>-Client: Mise à jour du gameState
+    
+    Client->>+Serveur: playerEjectMass() (touche W)
+    Serveur->>Serveur: Éjection de masse
+    Serveur->>-Client: Mise à jour du gameState
+    
+    Client->>+Serveur: login/register
+    Serveur->>Serveur: Authentification/Création du compte
+    Serveur->>-Client: Résultat + statistiques du joueur
+    
+    Client->>+Serveur: gameOver
+    Serveur->>Serveur: Sauvegarde des statistiques
+    Serveur->>-Client: Accusé de réception
+```
 
-## Collaborate with your team
+### Système de bots et animations
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```mermaid
+sequenceDiagram
+    participant Serveur
+    participant Bots
+    participant Animations
+    participant Clients
+    
+    loop À intervalle régulier
+        Serveur->>Bots: updateSpecificBots()
+        Bots->>Bots: makeDecision()
+        Bots->>Serveur: Déplacement et actions
+        
+        Serveur->>Animations: updateAnimations()
+        Animations->>Animations: Mise à jour des positions et progressions
+        
+        Serveur->>Clients: Diffusion du gameState mis à jour
+    end
+    
+    Note over Serveur,Clients: Mise à jour en temps réel
+```
 
-## Test and Deploy
+## Difficultés techniques rencontrées
 
-Use the built-in continuous integration in GitLab.
+### 1. Synchronisation en temps réel
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+**Problème :** La synchronisation précise entre les clients et le serveur était complexe, avec des risques de décalages et d'incohérences dans l'état du jeu.
 
-***
+**Solution :** Nous avons implémenté un système d'état de jeu centralisé sur le serveur qui fait autorité. Toutes les collisions et mises à jour de position sont calculées côté serveur puis propagées aux clients. Nous utilisons des intervalles de mise à jour optimisés (33ms pour les animations, 16ms pour les bots) pour garantir une expérience fluide.
 
-# Editing this README
+### 2. Gestion des collisions multiples
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+**Problème :** Détecter et gérer efficacement les collisions entre joueurs, nourriture et masses éjectées sans impact sur les performances.
 
-## Suggestions for a good README
+**Solution :** Nous avons développé un système de détection de collisions optimisé basé sur le calcul du pourcentage de chevauchement entre les cellules, avec des seuils configurables (`OVERLAP_THRESHOLD`). Le `CollisionService` traite séparément les différents types de collisions (nourriture, joueurs, masses éjectées) pour maintenir le code organisé.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 3. Animations fluides
 
-## Name
-Choose a self-explaining name for your project.
+**Problème :** Créer des animations fluides pour la consommation de nourriture et l'absorption de joueurs sans surcharger le réseau ou le client.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**Solution :** Nous avons créé un `AnimationService` dédié qui gère les transitions côté serveur. Les animations sont envoyées aux clients avec des informations de début/fin qui permettent des interpolations fluides. Cela limite le trafic réseau tout en maintenant une expérience visuelle satisfaisante.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### 4. Comportement intelligent des bots
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+**Problème :** Développer des bots qui offrent un challenge intéressant sans être trop prévisibles ou trop puissants.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Solution :** Notre `BotService` implémente un système de personnalités pour chaque bot avec différents niveaux d'agressivité, de focus sur la nourriture et de mouvement. Les bots analysent leur environnement pour prendre des décisions contextuelles, comme chasser des joueurs plus petits ou rechercher de la nourriture.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Points d'amélioration/d'achèvement
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Améliorations techniques
+1. 
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Fonctionnalités additionnelles
+1. **Système de niveaux et progression** : Implémenter un système d'XP et de niveaux pour les joueurs enregistrés
+2. **Skins et personnalisation** : Ajouter des options de personnalisation débloquables avec l'expérience
+3. **Cartes thématiques** : Développer différentes variantes de cartes avec des mécaniques uniques
+4. **Classements mondiaux** : Créer un tableau de classement persistant des meilleurs joueurs
+5. **Modes de jeu alternatifs** : Ajouter des modes comme le battle royale ou le jeu en équipes
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Améliorations UX/UI
+1. **Adaptation mobile complète** : Optimiser l'expérience pour les appareils tactiles
+2. **Notifications en jeu** : Améliorer les retours visuels pour les actions importantes (kill, niveau, accomplissements)
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Nos fiertés
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Architecture robuste et évolutive
+Nous sommes particulièrement fiers de l'architecture modulaire de notre jeu. La séparation claire entre les services (AnimationService, BotService, CollisionService, etc.) permet une maintenance facile et des évolutions indépendantes de chaque module. Cette approche orientée services nous a permis de développer en parallèle et d'intégrer progressivement de nouvelles fonctionnalités sans compromettre la stabilité du jeu.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Système de bots sophistiqué
+Notre système de bots avec des personnalités uniques représente un accomplissement significatif. Chaque bot possède son propre profil de comportement qui influence ses décisions de jeu, rendant l'expérience contre les adversaires IA plus variée et moins prévisible. L'algorithme de recherche de clusters de nourriture démontre particulièrement bien cette intelligence artificielle contextuelle.
 
-## License
-For open source projects, say how it is licensed.
+### Expérience utilisateur fluide
+Malgré la complexité des interactions en temps réel, nous avons réussi à créer une expérience utilisateur fluide avec des animations élégantes et des transitions naturelles. Le système d'authentification, le profil joueur et l'interface de jeu forment un ensemble cohérent et intuitif qui invite à l'engagement. L'attention portée aux détails visuels, comme les animations de consommation des cellules, contribue à la satisfaction globale du gameplay.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Équilibre et mécaniques de jeu
+L'équilibre entre croissance, vitesse et stratégie crée une dynamique de jeu captivante. Les mécanismes comme la division de cellules, l'éjection de masse et les fusions temporisées offrent une profondeur stratégique qui récompense l'expérience et l'habileté du joueur tout en restant accessibles aux nouveaux venus. Cet équilibre délicat entre accessibilité et profondeur représente l'un des aspects dont nous sommes le plus fiers.
