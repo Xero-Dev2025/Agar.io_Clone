@@ -30,22 +30,42 @@ const mouse = {
     y: canvas.height / 2
 };
 
+const gameState = { 
+    ejectedMasses: [],
+    gameOverDisplayed: false
+};
+
 canvas.addEventListener('mousemove', (event) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = event.clientX - rect.left;
     mouse.y = event.clientY - rect.top;
 });
 
+let wKeyPressed = false;
+
 window.addEventListener('keydown', (event) => {
     if (event.code === 'Space' && socket) {
         socket.emit('playerSplit');
         event.preventDefault();
     }
+    
+    if ((event.code === 'KeyW' || event.key === 'w') && socket && !wKeyPressed) {
+        wKeyPressed = true;
+        socket.emit('playerEjectMass');
+        event.preventDefault();
+    }
 });
 
-const { socket, animations } = setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas);
+window.addEventListener('keyup', (event) => {
+    if (event.code === 'KeyW' || event.key === 'w') {
+        wKeyPressed = false;
+    }
+});
+
+const { socket, animations } = setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas, gameState);
+
 function gameLoop() {
-    drawGame(ctx, player, foodItems, allPlayers, socket.id, animations, gameMap, mouse);
+    drawGame(ctx, player, foodItems, allPlayers, socket.id, animations, gameMap, mouse, gameState.ejectedMasses);
     requestAnimationFrame(gameLoop);
 }
 

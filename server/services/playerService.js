@@ -76,4 +76,17 @@ export default class PlayerService {
       player.updateStats();
     });
   }
+
+  handlePlayerEjectMass(players, socketId, ejectedMasses) {
+    const player = players[socketId];
+    if (!player) return false;
+    
+    const newMasses = player.ejectMass();
+    if (newMasses.length > 0) {
+      ejectedMasses.push(...newMasses);
+      return true;
+    }
+    
+    return false;
+  }
 }

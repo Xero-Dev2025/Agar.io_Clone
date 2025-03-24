@@ -1,3 +1,4 @@
+import { GAME_CONFIG } from '../utils/config.js';
 export default class Player {
     id;
     cells = []; 
@@ -283,4 +284,57 @@ export default class Player {
             foodEaten: this.stats.foodEaten,
         };
     }
+
+	ejectMass() {
+		const MIN_RADIUS_TO_EJECT = 35; 
+		const EJECT_MASS_SIZE = 18;     
+		const EJECT_SPEED = GAME_CONFIG.EJECT_MASS?.SPEED || 10; 
+		
+		const ejectedMasses = [];
+		const now = Date.now();
+		
+		this.cells.forEach(cell => {
+			if (cell.radius > MIN_RADIUS_TO_EJECT) {
+				let angle;
+				if (this.targetX !== undefined && this.targetY !== undefined) {
+					const dx = this.targetX - cell.x;
+					const dy = this.targetY - cell.y;
+					angle = Math.atan2(dy, dx);
+				} else {
+					angle = Math.random() * Math.PI * 2;
+				}
+				
+				const originalArea = Math.PI * cell.radius * cell.radius;
+				const ejectedArea = Math.PI * EJECT_MASS_SIZE * EJECT_MASS_SIZE;
+				const newArea = originalArea - ejectedArea;
+				
+				if (newArea > 0) {
+					cell.radius = Math.sqrt(newArea / Math.PI);
+					
+					const ejectedMass = {
+						id: `ejected_${this.id}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+						x: cell.x + Math.cos(angle) * (cell.radius + EJECT_MASS_SIZE),
+						y: cell.y + Math.sin(angle) * (cell.radius + EJECT_MASS_SIZE),
+						radius: EJECT_MASS_SIZE,
+						velocityX: Math.cos(angle) * EJECT_SPEED,
+						velocityY: Math.sin(angle) * EJECT_SPEED,
+						color: this.color,
+						creationTime: now,
+						playerId: this.id,
+						isEjectedMass: true,
+						originalArea: ejectedArea
+					};
+					
+					ejectedMasses.push(ejectedMass);
+				}
+			}
+		});
+		
+		if (ejectedMasses.length > 0) {
+			this.updateMainRadius();
+			this.updateScore();
+		}
+		
+		return ejectedMasses;
+	}
 }

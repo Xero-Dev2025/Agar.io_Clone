@@ -1,28 +1,23 @@
 import { GAME_CONFIG } from '../../server/utils/config.js';
 import { worldToScreenCoordinates } from './coordinatesConverter.js';
 
-export function drawGame(ctx, player, foodItems, allPlayers, socketId, animations = [], gameMap, mouse) {
+export function drawGame(ctx, player, foodItems, allPlayers, socketId, animations = [], gameMap, mouse, ejectedMasses = []) {
   const canvas = ctx.canvas;
   
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Sauvegarde l'état du contexte
   ctx.save();
   
-  // Calcul du facteur de zoom en fonction du rayon du joueur
-  const baseRadius = 30; // Rayon initial du joueur
-  const maxZoom = 1;   // Zoom maximum (pas de recul)
-  const minZoom = 0.22;   // Zoom minimum (recul maximum)
+  const baseRadius = 30; 
+  const maxZoom = 1;  
+  const minZoom = 0.22;   
   
-  // Plus le joueur est gros, plus la caméra recule (zoom diminue)
   let scale = Math.max(minZoom, maxZoom - (player.radius - baseRadius) / 300);
   
-  // Calcul du offset pour centrer le joueur avec prise en compte du zoom
   const cameraX = canvas.width / 2 - player.x * scale;
   const cameraY = canvas.height / 2 - player.y * scale;
   
-  // Application de la translation et du zoom pour tout ce qui sera dessiné
   ctx.translate(cameraX, cameraY);
   ctx.scale(scale, scale);
 
@@ -31,6 +26,21 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   drawGrid(ctx, player, gameMap);
 
   drawFoodItems(ctx, foodItems);
+
+  if (ejectedMasses && Array.isArray(ejectedMasses) && ejectedMasses.length > 0) {
+    ejectedMasses.forEach(mass => {
+      if (mass && typeof mass.x === 'number' && typeof mass.y === 'number') {
+        ctx.beginPath();
+        ctx.arc(mass.x, mass.y, mass.radius, 0, Math.PI * 2);
+        ctx.fillStyle = mass.color || '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+      }
+    });
+  }
   
   drawConsumingAnimations(ctx, animations, foodItems);
   
@@ -38,15 +48,11 @@ export function drawGame(ctx, player, foodItems, allPlayers, socketId, animation
   
   drawOtherPlayers(ctx, allPlayers, socketId);
   
-  // Restauration de l'état du contexte
   ctx.restore();
   
-  // Dessiner la minimap
   drawMinimap(ctx, player);
 
   drawHUD(ctx, player);
-
-  //drawMouseTracker(ctx, player, mouse);
 }
 
 function drawFoodItems(ctx, foodItems) {
@@ -141,15 +147,10 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
   });
 }
 
-/**
- * Dessine le nom d'un joueur sur son avatar
- * @param {CanvasRenderingContext2D} ctx - Le contexte 2D du canvas
- * @param {Object} player - Le joueur à dessiner
- */
+
 function drawPlayerName(ctx, player) {
   if (!player.username) return;
   
-  // Calculer la taille de police adaptée au rayon (min 12px, max 20px)
   const fontSize = Math.max(12, Math.min(20, player.radius / 3));
 
   ctx.font = `bold ${fontSize}px Arial`;
@@ -183,25 +184,21 @@ function drawConsumingAnimations(ctx, animations, foodItems) {
 
 function drawMinimap(ctx, player) {
   const canvas = ctx.canvas;
-  const minimapSize = Math.min(200, canvas.width * 0.2); // Taille minimap
+  const minimapSize = Math.min(200, canvas.width * 0.2);
   const margin = 10;
   const minimapX = canvas.width - minimapSize - margin;
   const minimapY = canvas.height - minimapSize - margin;
   
-  // Fond minimap
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(minimapX, minimapY, minimapSize, minimapSize);
   
-  // Bordure minimap
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 1;
   ctx.strokeRect(minimapX, minimapY, minimapSize, minimapSize);
   
-  // Mettre à l'échelle la taille du monde pour la minimap
   const scaleX = minimapSize / GAME_CONFIG.WIDTH;
   const scaleY = minimapSize / GAME_CONFIG.HEIGHT;  
   
-  // Dessiner joueur local
   ctx.fillStyle = player.color;
   const playerSize = Math.max(4, player.radius * scaleX * 0.2);
   ctx.fillRect(
@@ -222,12 +219,10 @@ function drawHUD(ctx, player) {
   ctx.fillText(`Score: ${player.stats?.score || 0}`, 10, 40);
 }
 
-// Dessiner la grille de fond
 function drawGrid(ctx, player, gameMap) {
   const gridSize = 50;
   if (!player) return;
   
-  // Calculer les coordonnées de début et fin de la grille
   const startX = Math.floor(0 / gridSize) * gridSize;
   const startY = Math.floor(0 / gridSize) * gridSize;
   const endX = Math.ceil(gameMap.width / gridSize) * gridSize;
@@ -236,7 +231,6 @@ function drawGrid(ctx, player, gameMap) {
   ctx.strokeStyle = "#333333";
   ctx.lineWidth = 1;
   
-  // Dessiner les lignes verticales
   for (let x = startX; x <= endX; x += gridSize) {
     ctx.beginPath();
     ctx.moveTo(x, startY);
@@ -244,7 +238,6 @@ function drawGrid(ctx, player, gameMap) {
     ctx.stroke();
   }
   
-  // Dessiner les lignes horizontales
   for (let y = startY; y <= endY; y += gridSize) {
     ctx.beginPath();
     ctx.moveTo(startX, y);
@@ -253,12 +246,11 @@ function drawGrid(ctx, player, gameMap) {
   }
 }
 
-// Dessiner les limites de la map
 function drawMapBorders(ctx, player, gameMap) {
   if (!player) return;
 
   ctx.save();
-  const gridSize = 50; // Utiliser la même taille que la grille
+  const gridSize = 50;
   const startX = Math.floor(0 / gridSize) * gridSize;
   const startY = Math.floor(0 / gridSize) * gridSize;
 

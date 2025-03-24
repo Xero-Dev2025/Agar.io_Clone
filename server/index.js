@@ -114,6 +114,22 @@ function startStatsUpdates() {
     }, 1000); 
 }
 
+setInterval(() => {
+    if (gameServer) {
+        gameServer.updateEjectedMasses();
+        
+        if (gameServer.getEjectedMasses().length > 0 || Object.keys(players).length > 0) {
+            io.emit('gameState', {
+                players: players,
+                foodItems: foodItems,
+                animations: gameServer.getAnimations(),
+                ejectedMasses: gameServer.getEjectedMasses(),
+                gameMap: gameMap
+            });
+        }
+    }
+}, 33);
+
 startStatsUpdates();
 startFoodSpawning();
 startAnimationUpdates();
@@ -204,10 +220,18 @@ io.on('connection', (socket) => {
             });
         }
         
-        io.emit('gameState', { 
-            players: players, 
+        const collidedMasses = gameServer.detectEjectedMassCollisions(socket.id);
+        if (collidedMasses.length > 0) {
+            collidedMasses.forEach(mass => {
+                gameServer.handleEjectedMassCollision(socket.id, mass.id);
+            });
+        }
+        
+        io.emit('gameState', {
+            players: players,
             foodItems: foodItems,
-            animations: gameServer.getAnimations()
+            animations: gameServer.getAnimations(),
+            ejectedMasses: gameServer.getEjectedMasses()
         });
     });
 
@@ -220,6 +244,21 @@ io.on('connection', (socket) => {
             const stats = data;
             auth.updateUserStats(username, stats);
         } else {
+        }
+    });
+
+    socket.on('playerEjectMass', () => {
+        if (players[socket.id]) {
+            const didEject = gameServer.handlePlayerEjectMass(socket.id);
+            
+            if (didEject) {
+                io.emit('gameState', {
+                    players: players,
+                    foodItems: foodItems,
+                    animations: gameServer.getAnimations(),
+                    ejectedMasses: gameServer.getEjectedMasses()
+                });
+            }
         }
     });
 

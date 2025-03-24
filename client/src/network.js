@@ -2,10 +2,9 @@ import { io } from 'socket.io-client';
 import { showGameOver } from './gameOver.js';
 import { setupLoginForm } from './login.js';
 
-export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas) {
+export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas, gameState) {
   const socket = io(window.location.origin);
   const animations = [];
-  let gameOverDisplayed = false;
 
   socket.on('connect', () => {
     console.log('Connecté au serveur avec l\'ID:', socket.id);
@@ -25,8 +24,8 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
     console.error('Erreur de connexion:', error);
   });
   
-  socket.on('gameState', (gameState) => {
-    handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap, gameState);
+  socket.on('gameState', (data) => {
+    handleGameState(data, socket, player, allPlayers, foodItems, animations, gameMap, gameState);
   });
   
   socket.on('playerEaten', (stats) => {
@@ -104,5 +103,23 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
   
   if (gameState && gameState.animations) {
     gameState.animations.forEach(anim => animations.push(anim));
+  }
+  
+  // Debug pour voir si les masses éjectées sont bien reçues
+  if (gameState.ejectedMasses && gameState.ejectedMasses.length > 0) {
+    console.log(`Reçu ${gameState.ejectedMasses.length} masses éjectées`);
+  }
+  
+  if (gameState && gameState.ejectedMasses) {
+    // Vérifier que gameStateObj.ejectedMasses existe bien
+    if (!gameStateObj.ejectedMasses) {
+      gameStateObj.ejectedMasses = [];
+    }
+    
+    // Mettre à jour les masses éjectées
+    gameStateObj.ejectedMasses.length = 0;
+    gameState.ejectedMasses.forEach(mass => {
+      gameStateObj.ejectedMasses.push(mass);
+    });
   }
 }
