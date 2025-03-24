@@ -128,6 +128,13 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
               }
             });
           }
+          
+          const collidedMasses = this.detectEjectedMassCollisions(botId);
+          if (collidedMasses.length > 0) {
+            collidedMasses.forEach(mass => {
+              this.handleEjectedMassCollision(botId, mass.id);
+            });
+          }
         }
       });
     },
@@ -138,40 +145,37 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
 
     updateEjectedMasses() {
       const now = Date.now();
-      const EJECTED_MASS_LIFETIME = 12000;
-      const FRICTION = 0.975; 
       
       for (let i = ejectedMasses.length - 1; i >= 0; i--) {
         const mass = ejectedMasses[i];
         
+        mass.velocityX *= GAME_CONFIG.EJECT_MASS.FRICTION || 0.975;
+        mass.velocityY *= GAME_CONFIG.EJECT_MASS.FRICTION || 0.975;
+        
         mass.x += mass.velocityX;
         mass.y += mass.velocityY;
-        mass.velocityX *= FRICTION;
-        mass.velocityY *= FRICTION;
-        
-        if (now - mass.creationTime > EJECTED_MASS_LIFETIME) {
-          ejectedMasses.splice(i, 1);
-          continue;
-        }
         
         if (mass.x - mass.radius < 0) {
           mass.x = mass.radius;
           mass.velocityX *= -0.5;
-        } else if (mass.x + mass.radius > gameMap.width) {
+        }
+        if (mass.x + mass.radius > gameMap.width) {
           mass.x = gameMap.width - mass.radius;
           mass.velocityX *= -0.5;
         }
-        
         if (mass.y - mass.radius < 0) {
           mass.y = mass.radius;
           mass.velocityY *= -0.5;
-        } else if (mass.y + mass.radius > gameMap.height) {
+        }
+        if (mass.y + mass.radius > gameMap.height) {
           mass.y = gameMap.height - mass.radius;
           mass.velocityY *= -0.5;
         }
+        
+        if (now - mass.createdAt > 30000) {
+          ejectedMasses.splice(i, 1);
+        }
       }
-      
-      return ejectedMasses;
     },
 
     detectEjectedMassCollisions(playerId) {
@@ -183,10 +187,19 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       for (let i = ejectedMasses.length - 1; i >= 0; i--) {
         const mass = ejectedMasses[i];
         
+        if (mass.playerId === playerId) {
+          const now = Date.now();
+          const massAge = now - (mass.createdAt || 0);
+          
+          if (massAge < 3000) {
+            continue;
+          }
+        }
         
         for (let j = 0; j < player.cells.length; j++) {
           const cell = player.cells[j];
-          if (cell.radius < mass.radius * 1.15) continue;
+          
+          if (cell.radius < mass.radius) continue;
           
           const dx = cell.x - mass.x;
           const dy = cell.y - mass.y;
@@ -245,10 +258,9 @@ export function createGameServer(players = {}, foodItems = [], gameMap) {
       
       return false;
     },
-    
+
     getEjectedMasses() {
       return ejectedMasses;
-    }
-
+    },
   };
 }

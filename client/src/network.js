@@ -88,18 +88,15 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
     gameState.animations.forEach(anim => animations.push(anim));
   }
   
-  // Debug pour voir si les masses éjectées sont bien reçues
   if (gameState.ejectedMasses && gameState.ejectedMasses.length > 0) {
     console.log(`Reçu ${gameState.ejectedMasses.length} masses éjectées`);
   }
   
   if (gameState && gameState.ejectedMasses) {
-    // Vérifier que gameStateObj.ejectedMasses existe bien
     if (!gameStateObj.ejectedMasses) {
       gameStateObj.ejectedMasses = [];
     }
     
-    // Mettre à jour les masses éjectées
     gameStateObj.ejectedMasses.length = 0;
     gameState.ejectedMasses.forEach(mass => {
       gameStateObj.ejectedMasses.push(mass);

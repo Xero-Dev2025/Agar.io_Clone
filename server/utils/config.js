@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
-    WIDTH: 11000,
-    HEIGHT: 11000,
+    WIDTH: 3000,
+    HEIGHT: 3000,
     
     PLAYER: {
       INITIAL_RADIUS: 30,
@@ -34,7 +34,7 @@ export const GAME_CONFIG = {
     },
 
     EJECT_MASS: {
-      SPEED: 10,          
+      SPEED: 25,          
       FRICTION: 0.975     
   }
 };

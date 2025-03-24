@@ -104,12 +104,10 @@ export function setupLoginForm(socket) {
     }
     
     function updateProfileStats(stats) {
-        // Game Records
         document.getElementById('profileHighScore').textContent = stats.highScore;
         document.getElementById('profileGamesPlayed').textContent = stats.gamesPlayed;
         document.getElementById('profileLongestTimeAlive').textContent = stats.longestTimeAlive;
         
-        // Career Totals
         document.getElementById('profilePlayersEaten').textContent = stats.totalPlayersEaten;
         document.getElementById('profileFoodEaten').textContent = stats.totalFoodEaten;
         document.getElementById('profileTotalTimeAlive').textContent = stats.totalTimeAlive;

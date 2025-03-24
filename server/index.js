@@ -214,7 +214,7 @@ io.on('connection', (socket) => {
             }
         }
     });
-    
+        
     socket.on('playerMove', (position) => {
         gameServer.handlePlayerMove(socket.id, position);
         
@@ -222,27 +222,16 @@ io.on('connection', (socket) => {
             players[socket.id].updateStats();
         }
         
-        const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
-        
-        if (collisionsPlayers.length > 0) {
-            
-            collisionsPlayers.forEach(otherPlayer => {
-                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id);
-                if (result) {
-                    
-                    io.emit('gameState', { 
-                        players: players, 
-                        foodItems: foodItems,
-                        animations: gameServer.getAnimations()
-                    });
-                }
+        const collidingPlayers = gameServer.detectPlayerCollisions(socket.id);
+        if (collidingPlayers.length > 0) {
+            collidingPlayers.forEach(otherPlayer => {
+                gameServer.handlePlayerCollision(socket.id, otherPlayer.id);
             });
         }
         
-        const collisionsFood = gameServer.detectFoodCollisions(socket.id);
-        
-        if (collisionsFood.length > 0) {
-            collisionsFood.forEach(food => {
+        const collidedFood = gameServer.detectFoodCollisions(socket.id);
+        if (collidedFood.length > 0) {
+            collidedFood.forEach(food => {
                 gameServer.handleFoodCollision(socket.id, food);
             });
         }
@@ -254,11 +243,12 @@ io.on('connection', (socket) => {
             });
         }
         
-        io.emit('gameState', {
-            players: players,
+        io.emit('gameState', { 
+            players: players, 
             foodItems: foodItems,
             animations: gameServer.getAnimations(),
-            ejectedMasses: gameServer.getEjectedMasses()
+            ejectedMasses: gameServer.getEjectedMasses(),
+            gameMap: gameMap
         });
     });
 
