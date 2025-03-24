@@ -28,27 +28,6 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
     handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap);
   });
   
-  socket.on('playerEaten', (stats) => {
-    console.log('Vous avez été mangé! Stats:', stats);
-    
-    const session = JSON.parse(localStorage.getItem('userSession'));
-    if (session && session.username) {
-      socket.emit('playerEaten', {
-        stats: stats,
-        username: session.username
-      });
-      
-      socket.emit('getPlayerStats', session.username);
-    } else {
-      showGameOver(stats, player.username);
-    }
-  });
-  
-  socket.on('playerStats', (data) => {
-    console.log('Statistiques reçues du serveur:', data);
-    showGameOver(data.stats, data.username);
-  });
-  
   socket.on('logout', () => {
     localStorage.removeItem('userSession');
     window.location.reload();

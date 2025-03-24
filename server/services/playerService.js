@@ -1,4 +1,4 @@
-import Player from '../models/player.js';
+import Player from '../models/Player.js';
 
 export default class PlayerService {
   constructor(gameConfig) {

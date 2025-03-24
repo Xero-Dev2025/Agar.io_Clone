@@ -90,7 +90,7 @@ export default class CollisionService {
     Object.values(players).forEach(otherPlayer => {
       if (otherPlayer.id === playerId) return;
       
-      console.log(`Vérification de collision entre ${playerId} et ${otherPlayer.id}`);
+      // console.log(`Vérification de collision entre ${playerId} et ${otherPlayer.id}`);
       
       let collision = false;
       
@@ -104,14 +104,14 @@ export default class CollisionService {
           const dy = playerCell.y - otherCell.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          console.log(`  Distance: ${distance}, Rayon joueur: ${playerCell.radius}, Rayon autre: ${otherCell.radius}`);
+          // console.log(`  Distance: ${distance}, Rayon joueur: ${playerCell.radius}, Rayon autre: ${otherCell.radius}`);
           
           if (playerCell.radius > otherCell.radius * 1.25 && distance < playerCell.radius) {
-            console.log(`  Collision détectée: ${playerId} peut manger ${otherPlayer.id}`);
+            // console.log(`  Collision détectée: ${playerId} peut manger ${otherPlayer.id}`);
             collision = true;
             break;
           } else if (otherCell.radius > playerCell.radius * 1.25 && distance < otherCell.radius) {
-            console.log(`  Collision détectée: ${otherPlayer.id} peut manger ${playerId}`);
+            // console.log(`  Collision détectée: ${otherPlayer.id} peut manger ${playerId}`);
             collision = true;
             break;
           }
@@ -130,14 +130,14 @@ export default class CollisionService {
         const otherId = typeof otherPlayerId === 'string' ? otherPlayerId : otherPlayerId.id;
         
         if (!players[playerId] || !players[otherId]) {
-            console.log(`Erreur: un joueur manquant - ${playerId} ou ${otherId}`);
+            // console.log(`Erreur: un joueur manquant - ${playerId} ou ${otherId}`);
             return false;
         }
         
         const player = players[playerId];
         const other = players[otherId];
         
-        console.log(`Gestion de la collision entre ${player.id} et ${other.id}`);
+        //console.log(`Gestion de la collision entre ${player.id} et ${other.id}`);
         
         let playerAteOther = false;
         let otherAtePlayer = false;
@@ -162,7 +162,7 @@ export default class CollisionService {
               
               otherCellsToRemove.push(otherCell.id);
               
-              console.log(`Joueur ${player.id} mange une cellule de ${other.id}`);
+              // console.log(`Joueur ${player.id} mange une cellule de ${other.id}`);
             }
             else if (otherCell.radius > playerCell.radius * 1.25 && distance < otherCell.radius) {
               otherAtePlayer = true;
@@ -175,7 +175,7 @@ export default class CollisionService {
               
               playerCellsToRemove.push(playerCell.id);
               
-              console.log(`Joueur ${other.id} mange une cellule de ${player.id}`);
+              // console.log(`Joueur ${other.id} mange une cellule de ${player.id}`);
             }
           });
         });

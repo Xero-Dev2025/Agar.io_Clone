@@ -113,7 +113,6 @@ function updateUserStats(username, gameStats) {
     users[username].stats = userStats;
     saveUsers(users);
     console.log(`Statistiques mise à jour pour ${username}`);
-    
     return true;
 }
 

@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
-    WIDTH: 11000,
-    HEIGHT: 11000,
+    WIDTH: 1000,
+    HEIGHT: 1000,
     
     PLAYER: {
       INITIAL_RADIUS: 30,

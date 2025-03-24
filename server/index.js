@@ -182,17 +182,13 @@ io.on('connection', (socket) => {
         const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
         
         if (collisionsPlayers.length > 0) {
-            console.log(`${socket.id} a des collisions avec ${collisionsPlayers.length} joueurs`);
+            // console.log(`${socket.id} a des collisions avec ${collisionsPlayers.length} joueurs`);
             
             collisionsPlayers.forEach(otherPlayer => {
                 const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id); // S'assurer que c'est l'ID qui est passé
                 
                 if (result) {
-                    console.log(`Résultat de la collision: ${JSON.stringify(result)}`);
-                    
-                    if (!players[socket.id]) {
-                        socket.emit('playerEaten', players[otherPlayer.id]?.stats || {});
-                    }
+                    // console.log(`Résultat de la collision: ${JSON.stringify(result)}`);
                     
                     io.emit('gameState', { 
                         players: players, 
@@ -218,26 +214,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on('playerEaten', (data) => {
-        if (socket.user && socket.user.authenticated) {
-            const username = socket.user.username;
-            const stats = data;
-            console.log(`Enregistrement des statistiques pour ${username}:`, stats);
-            auth.updateUserStats(username, stats);
-        } else {
-            console.log('Utilisateur non authentifié ou anonyme, statistiques non enregistrées.');
-        }
-    });
-
-    socket.on('getPlayerStats', (username) => {
-        console.log(`Récupération des statistiques pour ${username}`);
-        const userStats = auth.getUserStats(username);
-        
-        socket.emit('playerStats', {
-            username: username,
-            stats: userStats || {}
-        });
-    });
 
     socket.on('playerSplit', () => {
         if (players[socket.id]) {
