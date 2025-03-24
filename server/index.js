@@ -282,6 +282,22 @@ io.on('connection', (socket) => {
         });
     });
 
+    socket.on('setAvatar', (avatar) => {
+        if (players[socket.id] && avatar) {
+          gameServer.handlePlayerSetAvatar(socket.id, avatar);
+          
+          io.emit('gameState', { 
+            players: players, 
+            foodItems: foodItems,
+            animations: gameServer.getAnimations(),
+            ejectedMasses: gameServer.getEjectedMasses(),
+            gameMap: gameMap
+          });
+          
+          console.log(`Avatar set for ${socket.id}: ${avatar}`);
+        }
+      });
+
     socket.on('playerSplit', () => {
         if (players[socket.id]) {
             const didSplit = gameServer.handlePlayerSplit(socket.id);

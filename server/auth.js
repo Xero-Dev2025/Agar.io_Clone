@@ -126,9 +126,28 @@ function getUserStats(username) {
     return users[username].stats;
 }
 
+function updateUserAvatar(username, avatar) {
+    const users = loadUsers();
+    
+    if (!users[username]) {
+        console.log(`Joueur ${username} non trouvé`);
+        return false;
+    }
+    
+    if (!users[username].stats) {
+        users[username].stats = {};
+    }
+    users[username].stats.avatar = avatar;
+    
+    saveUsers(users);
+    console.log(`Avatar mis à jour pour ${username}: ${avatar}`);
+    return true;
+}
+
 export default {
     registerUser,
     authenticateUser,
     updateUserStats,
-    getUserStats
+    getUserStats,
+    updateUserAvatar 
 };

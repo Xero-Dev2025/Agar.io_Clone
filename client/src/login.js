@@ -95,12 +95,56 @@ export function setupLoginForm(socket) {
         socket.emit('getPlayerStats', username, (stats) => {
             if (stats) {
                 updateProfileStats(stats);
+                if (stats.avatar) {
+                    selectAvatar(stats.avatar);
+                } else {
+                    selectAvatar('default');
+                }
             } else if (response.stats) {
                 updateProfileStats(response.stats);
+                if (response.stats.avatar) {
+                    selectAvatar(response.stats.avatar);
+                } else {
+                    selectAvatar('default');
+                }
+            } else {
+                selectAvatar('default');
             }
         });
         
         setupProfileButtons(username, socket);
+        setupAvatarSelection(socket);
+    }
+    
+    function setupAvatarSelection(socket) {
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        
+        avatarOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                option.classList.add('selected');
+                
+                const selectedAvatar = option.getAttribute('data-avatar');
+                
+                const sessionData = JSON.parse(localStorage.getItem('userSession')) || {};
+                sessionData.avatar = selectedAvatar;
+                localStorage.setItem('userSession', JSON.stringify(sessionData));
+                
+                socket.emit('setAvatar', selectedAvatar);
+            });
+        });
+    }
+
+    function selectAvatar(avatarName) {
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        avatarOptions.forEach(option => {
+            if (option.getAttribute('data-avatar') === avatarName) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
     }
     
     function updateProfileStats(stats) {
