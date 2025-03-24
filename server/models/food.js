@@ -13,7 +13,7 @@ export function createFood(id, x, y) {
 }
 
 function generateRandomPosition(width, height) {
-    const margin = GAME_CONFIG.FOOD.RADIUS * 2; // Marge de sécurité
+    const margin = GAME_CONFIG.FOOD.RADIUS * 2;
     return {
         x: margin + Math.random() * (width - margin * 2),
         y: margin + Math.random() * (height - margin * 2)

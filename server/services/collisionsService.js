@@ -17,7 +17,7 @@ export default class CollisionService {
     
     player.cells.forEach(cell => {
       availableFoodItems.forEach(food => {
-        if (collidedFood.includes(food)) return; // Éviter les doublons
+        if (collidedFood.includes(food)) return;
         
         const dx = cell.x - food.x;
         const dy = cell.y - food.y;

@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
-    WIDTH: 3000,
-    HEIGHT: 3000,
+    WIDTH: 1000,
+    HEIGHT: 1000,
     
     PLAYER: {
       INITIAL_RADIUS: 30,
@@ -16,6 +16,7 @@ export const GAME_CONFIG = {
       SPAWN_INTERVAL: 2000, 
       SPAWN_COUNT: 20
     },
+    
     ANIMATION: {
       CONSUME_DURATION: 300, 
       GROWTH_DURATION: 300   
@@ -27,7 +28,7 @@ export const GAME_CONFIG = {
     },
 
     BOT: {
-      SPEED_MULTIPLIER: 3,  
+      SPEED_MULTIPLIER: 1,  
       DECISION_INTERVAL: 300,  
       MOVE_INTERVAL: 16       
     },

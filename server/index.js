@@ -9,7 +9,7 @@ import { GAME_CONFIG } from './utils/config.js';
 import auth from './auth.js';
 
 dotenv.config();
-const BOT_COUNT = 25;
+const BOT_COUNT = 5;
 const players = {}; 
 const foodItems = [];
 const gameMap = {
@@ -38,27 +38,18 @@ gameServer.initalizeGameMap(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 gameServer.initializeFood(GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
 gameServer.initializeBots(BOT_COUNT);
 
-const BOT_UPDATE_INTERVAL = 1
+const BOT_UPDATE_INTERVAL = 16;
 const BOT_TOTAL_UPDATE = 100; 
 
 let botUpdateIndex = 0;
 
 setInterval(() => {
     const botIds = gameServer.getBotIds();
-    
     if (botIds.length === 0) return;
     
-    const botsPerUpdate = Math.max(1, Math.ceil(botIds.length / (BOT_TOTAL_UPDATE / BOT_UPDATE_INTERVAL)));
-    
-    const startIndex = botUpdateIndex % botIds.length;
-    const endIndex = Math.min(startIndex + botsPerUpdate, botIds.length);
-    
-    const botsToUpdate = botIds.slice(startIndex, endIndex);
-    
-    gameServer.updateSpecificBots(botsToUpdate);
-    
-    botUpdateIndex = (botUpdateIndex + botsPerUpdate) % botIds.length;
+    gameServer.updateSpecificBots(botIds);
 }, BOT_UPDATE_INTERVAL);
+
 
 
 function startFoodSpawning() {
@@ -193,8 +184,7 @@ io.on('connection', (socket) => {
         if (collisionsPlayers.length > 0) {
             
             collisionsPlayers.forEach(otherPlayer => {
-                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id); // S'assurer que c'est l'ID qui est passé
-                
+                const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id);
                 if (result) {
                     
                     if (!players[socket.id]) {
