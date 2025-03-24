@@ -5,7 +5,8 @@ import { setupLoginForm } from './login.js';
 export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, canvas) {
   const socket = io(window.location.origin);
   const animations = [];
-  
+  let gameOverDisplayed = false;
+
   socket.on('connect', () => {
     console.log('Connecté au serveur avec l\'ID:', socket.id);
     
@@ -25,12 +26,13 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   });
   
   socket.on('gameState', (gameState) => {
-    handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap);
+    handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap, gameState);
   });
   
   socket.on('playerEaten', (stats) => {
     console.log('Vous avez été mangé! Stats:', stats);
-    
+    gameState.gameOverDisplayed = true;
+
     const session = JSON.parse(localStorage.getItem('userSession'));
     if (session && session.username) {
       socket.emit('playerEaten', {
@@ -66,12 +68,13 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   return { socket, animations };
 }
 
-function handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap) {
+function handleGameState(gameState, socket, player, allPlayers, foodItems, animations, gameMap, gameStateObj) {
   const playerExists = gameState.players && gameState.players[socket.id];
   
-  if (!playerExists && Object.keys(allPlayers).includes(socket.id)) {
+  if (!playerExists && Object.keys(allPlayers).includes(socket.id) && !gameStateObj.gameOverDisplayed) {
     console.log("Joueur disparu du gameState - affichage game over");
     showGameOver(allPlayers[socket.id]?.stats || {}, allPlayers[socket.id]?.username);
+    gameStateObj.gameOverDisplayed = true; 
     return;
   }
   

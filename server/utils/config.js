@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
-    WIDTH: 11000,
-    HEIGHT: 11000,
+    WIDTH: 3000,
+    HEIGHT: 3000,
     
     PLAYER: {
       INITIAL_RADIUS: 30,
@@ -24,5 +24,11 @@ export const GAME_CONFIG = {
     SCORE: {
       FOOD_VALUE: 10,
       PLAYER_VALUE: 100
-    }
+    },
+
+    BOT: {
+      SPEED_MULTIPLIER: 3,  
+      DECISION_INTERVAL: 300,  
+      MOVE_INTERVAL: 16       
+    },
 };
