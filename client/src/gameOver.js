@@ -1,4 +1,6 @@
-export function showGameOver(stats = {}, username) {
+let statsAlreadySent = false;
+
+export function showGameOver(stats = {}, username, socket) {
     const canvas = document.querySelector('.gameCanvas');
     const nameGame = document.querySelector('.nameGame');
     
@@ -24,10 +26,24 @@ export function showGameOver(stats = {}, username) {
       if (gameOverFoodEaten) gameOverFoodEaten.textContent = stats.foodEaten || 0;
     }
     
+    if (socket && username && !statsAlreadySent) {
+        console.log("Envoi des statistiques de fin de partie au serveur ...");
+        socket.emit('gameOver', {
+            username: username,
+            stats: stats
+        });
+        statsAlreadySent = true;
+    }
+    
     const restartButton = document.querySelector('.restartButton');
     if (restartButton) {
       restartButton.onclick = () => {
+        statsAlreadySent = false;
         window.location.reload();
       };
     }
+}
+
+export function resetGameOverState() {
+    statsAlreadySent = false;
 }

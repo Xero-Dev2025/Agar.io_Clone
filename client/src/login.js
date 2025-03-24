@@ -92,9 +92,13 @@ export function setupLoginForm(socket) {
         const username = response.username || (session && session.username);
         document.getElementById('profileUsername').textContent = username;
         
-        if (response.stats) {
-            updateProfileStats(response.stats);
-        }
+        socket.emit('getPlayerStats', username, (stats) => {
+            if (stats) {
+                updateProfileStats(stats);
+            } else if (response.stats) {
+                updateProfileStats(response.stats);
+            }
+        });
         
         setupProfileButtons(username, socket);
     }
