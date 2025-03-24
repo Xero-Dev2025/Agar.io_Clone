@@ -182,22 +182,10 @@ io.on('connection', (socket) => {
         const collisionsPlayers = gameServer.detectPlayerCollisions(socket.id);
         
         if (collisionsPlayers.length > 0) {
-<<<<<<< HEAD
-            // console.log(`${socket.id} a des collisions avec ${collisionsPlayers.length} joueurs`);
-=======
->>>>>>> Bot
             
             collisionsPlayers.forEach(otherPlayer => {
                 const result = gameServer.handlePlayerCollision(socket.id, otherPlayer.id);
                 if (result) {
-<<<<<<< HEAD
-                    // console.log(`Résultat de la collision: ${JSON.stringify(result)}`);
-=======
-                    
-                    if (!players[socket.id]) {
-                        socket.emit('playerEaten', players[otherPlayer.id]?.stats || {});
-                    }
->>>>>>> Bot
                     
                     io.emit('gameState', { 
                         players: players, 
@@ -223,8 +211,6 @@ io.on('connection', (socket) => {
         });
     });
 
-<<<<<<< HEAD
-=======
     socket.on('playerEaten', (data) => {
         if (data.isBot) {
             setTimeout(() => gameServer.respawnBot(), 5000);
@@ -245,7 +231,6 @@ io.on('connection', (socket) => {
             stats: userStats || {}
         });
     });
->>>>>>> Bot
 
     socket.on('playerSplit', () => {
         if (players[socket.id]) {
