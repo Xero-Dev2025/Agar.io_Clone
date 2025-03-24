@@ -74,7 +74,6 @@ function drawFoodItems(ctx, foodItems) {
 }
 
 function drawMainPlayer(ctx, player) {
-  console.log("Main player avatar:", player.avatar); 
   
   if (player.cells && player.cells.length > 0) {
     player.cells.forEach(cell => {
@@ -129,7 +128,6 @@ function drawOtherPlayers(ctx, allPlayers, socketId) {
       const otherPlayer = allPlayers[id];
       
       if (otherPlayer) {
-        console.log("Other player avatar:", id, otherPlayer.avatar); // Ajout pour déboguer
         
         if (otherPlayer.cells && otherPlayer.cells.length > 0) {
           otherPlayer.cells.forEach(cell => {
@@ -194,7 +192,6 @@ function loadAvatar(avatarName) {
     avatarCache[avatarName] = img;
     
     img.onload = () => {
-      console.log(`Avatar ${avatarName} loaded successfully`);
     };
     
     img.onerror = () => {

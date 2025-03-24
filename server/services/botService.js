@@ -19,7 +19,6 @@ export default class BotService {
     }
 
     initializeBots(players, foodItems, gameMap, count = 25) {
-      console.log(`Initialisation de ${count} bots...`);
       
       for (let i = 0; i < count; i++) {
         const botId = `bot-${uuidv4()}`;
@@ -69,7 +68,6 @@ export default class BotService {
         }
       }
       
-      console.log(`${this.botIds.length} bots initialisés`);
       return this.botIds;
     }
 
@@ -332,7 +330,6 @@ export default class BotService {
         this.lastBotMoveTime[botId] = Date.now();
       }
       
-      console.log(`Bot respawned: ${botName}`);
       return botId;
     }
 

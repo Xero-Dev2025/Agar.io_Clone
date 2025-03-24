@@ -7,7 +7,6 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   const animations = [];
 
   socket.on('connect', () => {
-    console.log('Connecté au serveur avec l\'ID:', socket.id);
     
     const session = JSON.parse(localStorage.getItem('userSession'));
     if (session && session.username && session.authenticated) {
@@ -29,7 +28,6 @@ export function setupNetworking(player, allPlayers, foodItems, mouse, gameMap, c
   });
   
   socket.on('playerEaten', (stats) => {
-    console.log('Vous avez été mangé! Stats:', stats);
     gameState.gameOverDisplayed = true;
   });
   
@@ -54,7 +52,6 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
   const playerExists = gameState.players && gameState.players[socket.id];
   
   if (!playerExists && Object.keys(allPlayers).includes(socket.id) && !gameStateObj.gameOverDisplayed) {
-    console.log("Joueur disparu du gameState - affichage game over");
     showGameOver(allPlayers[socket.id]?.stats || {}, allPlayers[socket.id]?.username, socket);
     gameStateObj.gameOverDisplayed = true; 
     return;
@@ -89,7 +86,6 @@ function handleGameState(gameState, socket, player, allPlayers, foodItems, anima
   }
   
   if (gameState.ejectedMasses && gameState.ejectedMasses.length > 0) {
-    console.log(`Reçu ${gameState.ejectedMasses.length} masses éjectées`);
   }
   
   if (gameState && gameState.ejectedMasses) {

@@ -27,7 +27,6 @@ export function showGameOver(stats = {}, username, socket) {
     }
     
     if (socket && username && !statsAlreadySent) {
-        console.log("Envoi des statistiques de fin de partie au serveur ...");
         socket.emit('gameOver', {
             username: username,
             stats: stats
