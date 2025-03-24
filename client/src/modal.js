@@ -143,7 +143,7 @@ export function setupModals() {
             <h4>JSAÉ Team</h4>
             <p>Made by :</p>
             <ul class="inspiration-list">
-                <li><strong>Antoine Domisse, 100%</strong</li>
+                <li><strong>Antoine Domisse, Groupe I, Hokle, League of Legend, 100%</strong</li>
                 <li><strong>Atilla Tas, Groupe I, PoA, Final Fantasy, 100%</strong></li>
                 <li><strong>Kellian Mirey, Groupe I, Stazz, Minecraft, 100%</strong></li>
             </ul>
