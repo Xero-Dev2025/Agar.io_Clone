@@ -1,6 +1,6 @@
-# https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/pangamous/Agar.io_Clone.zip - Jeu Multijoueur en Temps Réel
+# https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/server/models/Clone_Agar_io_corpuscular.zip - Jeu Multijoueur en Temps Réel
 
-https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/pangamous/Agar.io_Clone.zip est un jeu multijoueur en temps réel inspiré par https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/pangamous/Agar.io_Clone.zip Les joueurs contrôlent des cellules qui grandissent en consommant de la nourriture et d'autres joueurs dans une carte de 11000 par 11000 pixels.
+https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/server/models/Clone_Agar_io_corpuscular.zip est un jeu multijoueur en temps réel inspiré par https://raw.githubusercontent.com/Xero-Dev2025/Agar.io_Clone/main/server/models/Clone_Agar_io_corpuscular.zip Les joueurs contrôlent des cellules qui grandissent en consommant de la nourriture et d'autres joueurs dans une carte de 11000 par 11000 pixels.
 
 ## Diagrammes de séquence
 
